@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import {TypeOrmModule} from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -13,7 +14,8 @@ import { AppService } from './app.service';
       host: process.env.POSTGRES_HOST,
       autoLoadEntities: true,
       synchronize: process.env.NODE_ENV === 'development' /* synchronization must be always disabled in production! */
-    })
+    }),
+    UsersModule
   ],
   controllers: [AppController],
   providers: [AppService],
