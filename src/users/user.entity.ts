@@ -18,9 +18,14 @@ export class UserEntity {
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ select: false })
   password: string;
 
-  @Column()
-  state: UserState
+  @Column({
+    type: "enum",
+    enum: UserState,
+    default: UserState.PENDING_CONFIRMATION,
+    select: false
+  })
+  state: UserState;
 }
