@@ -7,6 +7,13 @@ export enum UserState
   DISABLED = 'DISABLED'
 }
 
+export enum UserRolePrivilege
+{
+  DEFAULT = 0,
+  MODERATOR = 1,
+  ADMIN = 10
+}
+
 @Entity()
 export class UserEntity {
   @PrimaryGeneratedColumn()
@@ -28,4 +35,11 @@ export class UserEntity {
     select: false
   })
   state: UserState;
+
+  @Column({
+    type: 'enum',
+    enum: UserRolePrivilege,
+    default: UserRolePrivilege.DEFAULT,
+  })
+  privilege: number;
 }
