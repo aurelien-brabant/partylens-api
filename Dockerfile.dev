@@ -1,0 +1,14 @@
+FROM		alpine:3.13.4
+
+# Install required packages. The yarn package should install
+# NodeJS and all the required deps.
+RUN			apk update && apk upgrade && apk add	\
+											yarn
+
+RUN			yarn global add @nestjs/cli
+
+RUN			mkdir -p /usr/app
+
+WORKDIR		/usr/app
+
+ENTRYPOINT	[ "yarn", "start:dev" ]
