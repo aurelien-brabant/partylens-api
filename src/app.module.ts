@@ -3,6 +3,7 @@ import {TypeOrmModule} from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
+import { PartiesModule } from './parties/parties.module';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { UsersModule } from './users/users.module';
       autoLoadEntities: true,
       synchronize: process.env.NODE_ENV === 'development' /* synchronization must be always disabled in production! */
     }),
-    UsersModule
+    UsersModule,
+    PartiesModule
   ],
   controllers: [AppController],
   providers: [AppService],
