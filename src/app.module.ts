@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { PartiesModule } from './parties/parties.module';
 import {RouterModule} from '@nestjs/core';
 import {routes} from './routes';
+import { PartymembersModule } from './partymembers/partymembers.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import {routes} from './routes';
       synchronize: process.env.NODE_ENV === 'development' /* synchronization must be always disabled in production! */
     }),
     RouterModule.register(routes),
+    PartymembersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

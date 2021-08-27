@@ -1,5 +1,6 @@
+import {PartymemberEntity} from "src/partymembers/partymember.entity";
 import {UserEntity} from "src/users/user.entity";
-import {Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn} from "typeorm";
+import {Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
 
 @Entity()
 export class PartyEntity {
@@ -13,12 +14,16 @@ export class PartyEntity {
   description: string;
 
   @Column()
-  startDate: Date;
+  startDate: string;
 
-  @Column()
-  creationDate: Date;
+  @Column({
+    default: new Date(Date.now()).toJSON()
+  })
+  creationDate: string;
 
-  @OneToOne(() => UserEntity)
-  @JoinColumn()
+  @ManyToOne(() => UserEntity)
   owner: UserEntity;
+
+  @OneToMany(() => PartymemberEntity, member => member.party)
+  members: PartymemberEntity[];
 }
