@@ -1,7 +1,7 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import {PartiesService} from './parties.service';
 
-@Controller('parties')
+@Controller()
 export class PartiesController {
   constructor(
     private readonly partiesService: PartiesService
