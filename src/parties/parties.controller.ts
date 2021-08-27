@@ -11,9 +11,14 @@ export class PartiesController {
 
   @UseGuards(UserExistsGuard)
   @Get('/')
-  findUserParties(@Param('userId') userId: number, @Query('populate') populate: string)
+  findUserParties(
+    @Param('userId') userId: number,
+    @Query('populate_members') populateMembers: boolean,
+    @Query('strict_party_matching') strictPartyMatching: boolean,
+  )
   {
-    return this.partiesService.findPartiesForUser(userId, populate ? populate.split(',') : null);
+    console.log(populateMembers);
+    return this.partiesService.findPartiesForUser(userId, { populateMembers, strictPartyMatching });
   }
 
   @UseGuards(UserExistsGuard)

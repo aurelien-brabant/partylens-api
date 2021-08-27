@@ -1,4 +1,4 @@
-import {UseGuards} from '@nestjs/common';
+import {NotFoundException, UseGuards} from '@nestjs/common';
 import { Injectable, Query } from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {PartymembersService} from 'src/partymembers/partymembers.service';
@@ -15,29 +15,60 @@ export class PartiesService {
     private readonly partymembersService: PartymembersService
   ) {}
 
-  /* only return parties the user participates to */
-  async findPartiesForUser(userId: number, entityToPopulate: string[] | null): Promise<PartyEntity[]> {
-    /* build a conditional list of relations */
+  isUserInvolvedInParty(party: PartyEntity, userId: number): boolean
+  {
+    console.log(party);
+    if (party.owner && userId === party.owner.id) {
+      return true;
+    }
 
-    const relations: string[] = [];
+    /* if any member is the targeted user, then it is involved */
 
-    if (entityToPopulate) {
-      if (entityToPopulate.includes('members')) {
-        relations.push('members', 'members.user');
-      }
-
-      if (entityToPopulate.includes('owner')) {
-        relations.push('owner');
+    if (party.members) {
+      for (const member of party.members) {
+        if (member.user && member.user.id === userId) {
+          return true;
+        }
       }
     }
-  
+
+    return false;
+  }
+
+  async findUserPartyById(userId: number, partyId: number): Promise<PartyEntity>
+  {
+    const party = await this.partiesRepository.findOne(partyId, {
+      relations: ['members', 'owner']
+    });
+
+    if (!party || !this.isUserInvolvedInParty(party, userId)) {
+      throw new NotFoundException('No such party');
+    }
+
+    return party;
+  }
+
+  /* only return parties the user participates to */
+  async findPartiesForUser(
+    userId: number,                      
+    options: {
+      populateMembers: boolean, /* populate_members */
+      strictPartyMatching?: boolean  /* strict_party_matching */
+    }
+  ): Promise<PartyEntity[]> 
+  {
+    const relations = ['owner']; /* owner population is always needed anyway */
+
+    if (options.populateMembers) {
+      relations.push('members', 'members.user');
+    }
 
     const parties = await this.partiesRepository.find({
       relations,
     })
 
-    return parties;
-    //return parties.filter(party => party.owner.id === userId);
+    return parties.filter(party => !options.populateMembers || options.strictPartyMatching ?
+                          party.owner.id === userId : this.isUserInvolvedInParty(party, userId));
   }
 
   async create(userId: number, partyData: CreatePartyDto) {
@@ -45,8 +76,6 @@ export class PartiesService {
       ... partyData,
       owner: { id: userId }
     });
-
-    console.log(partyData);
 
     party = await this.partiesRepository.save(party);
 

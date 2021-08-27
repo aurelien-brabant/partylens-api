@@ -5,6 +5,7 @@ import {TypeOrmModule} from '@nestjs/typeorm';
 import {PartyEntity} from './party.entity';
 import {PartymembersModule} from 'src/partymembers/partymembers.module';
 import {UsersModule} from 'src/users/users.module';
+import {UserPartyGuard} from './party.guard';
 
 @Module({
   imports: [
@@ -12,8 +13,8 @@ import {UsersModule} from 'src/users/users.module';
     PartymembersModule,
     UsersModule,
   ],
-  providers: [PartiesService],
+  providers: [PartiesService, UserPartyGuard],
   controllers: [PartiesController],
-  exports: [PartiesService],
+  exports: [PartiesService, UserPartyGuard],
 })
 export class PartiesModule {}

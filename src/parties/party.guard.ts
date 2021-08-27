@@ -2,7 +2,7 @@ import {CanActivate, ExecutionContext, Injectable, NotFoundException} from "@nes
 import {PartiesService} from "./parties.service";
 
 @Injectable()
-export class UserExistsGuard implements CanActivate {
+export class UserPartyGuard implements CanActivate {
   constructor(
     private readonly partiesService: PartiesService
   ) {};
@@ -14,11 +14,10 @@ export class UserExistsGuard implements CanActivate {
 
     const { userId, partyId } = request.params;
 
-    if (!userId || partyId) {
+    if (!partyId) {
       return false;
     }
 
-    //const party = await this.partiesService.findById(userId);
-    return true;
+    return !!await this.partiesService.findUserPartyById(userId, partyId)
   }
 }
