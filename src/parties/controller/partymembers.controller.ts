@@ -1,10 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {ApiTags} from '@nestjs/swagger';
 import {UserExistsGuard} from 'src/users/guard/user-exists.guard';
 import {CreatePartymemberDto} from '../dto/create-partymember.dto';
 import {UpdatePartymemberDto} from '../dto/update-partymember.dto';
 import {PartyExistsGuard} from '../guard/party-exists.guard';
 import {PartymembersService} from '../service/partymembers.service';
 
+@ApiTags('User management')
 @Controller('/users/:userId/parties/:partyId/members')
 @UseGuards(UserExistsGuard, PartyExistsGuard)
 export class PartymembersController {

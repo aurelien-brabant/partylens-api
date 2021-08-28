@@ -7,14 +7,14 @@ import {PartyEntity} from "./party.entity";
  */
 
 export enum PartyUserRole {
-  DEFAULT = 0,
-  ADMINISTRATOR = 10
+  DEFAULT,
+  ADMINISTRATOR
 }
 
 export enum PartymemberState {
-  PENDING = -1,
-  OUT = 0,
-  IN = 1,
+  PENDING,
+  OUT,
+  IN,
 }
 
 @Entity()
