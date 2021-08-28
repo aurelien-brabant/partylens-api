@@ -17,7 +17,7 @@ export enum UserRolePrivilege
 @Entity()
 export class UserEntity {
   @PrimaryGeneratedColumn()
-  id?: number;
+  id: number;
 
   @Column()
   name: string;

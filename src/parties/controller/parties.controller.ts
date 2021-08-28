@@ -17,7 +17,6 @@ export class PartiesController {
     @Query('strict_party_matching') strictPartyMatching: boolean,
   )
   {
-    console.log(populateMembers);
     return this.partiesService.findPartiesForUser(userId, { populateMembers, strictPartyMatching });
   }
 

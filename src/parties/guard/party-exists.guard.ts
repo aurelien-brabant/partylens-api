@@ -2,7 +2,7 @@ import {CanActivate, ExecutionContext, forwardRef, Inject, Injectable } from "@n
 import {PartiesService} from "../service/parties.service";
 
 @Injectable()
-export class UserPartyGuard implements CanActivate {
+export class PartyExistsGuard implements CanActivate {
   constructor(
     @Inject(forwardRef(() => PartiesService))
     private readonly partiesService: PartiesService
@@ -19,6 +19,8 @@ export class UserPartyGuard implements CanActivate {
       return false;
     }
 
-    return !!await this.partiesService.findUserPartyById(userId, partyId)
+    request.partyResource = await this.partiesService.findUserPartyById(userId, partyId);
+
+    return !!request.partyResource;
   }
 }

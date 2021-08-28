@@ -16,8 +16,7 @@ export class PartiesService {
 
   isUserInvolvedInParty(party: PartyEntity, userId: number): boolean
   {
-    console.log(party);
-    if (party.owner && userId === party.owner.id) {
+    if (party.owner && userId == party.owner.id) {
       return true;
     }
 
@@ -25,7 +24,7 @@ export class PartiesService {
 
     if (party.members) {
       for (const member of party.members) {
-        if (member.user && member.user.id === userId) {
+        if (member.user && member.user.id == userId) {
           return true;
         }
       }
