@@ -1,20 +1,23 @@
 import { Module } from '@nestjs/common';
-import { PartiesService } from './parties.service';
-import { PartiesController } from './parties.controller';
 import {TypeOrmModule} from '@nestjs/typeorm';
-import {PartyEntity} from './party.entity';
-import {PartymembersModule} from 'src/partymembers/partymembers.module';
 import {UsersModule} from 'src/users/users.module';
-import {UserPartyGuard} from './party.guard';
+
+import {PartyEntity} from './entity/party.entity';
+import {PartymemberEntity} from './entity/partymember.entity';
+
+import { PartiesService } from './service/parties.service';
+import {PartymembersService} from './service/partymembers.service';
+
+import { PartiesController } from './controller/parties.controller';
+import {PartymembersController} from './controller/partymembers.controller';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ PartyEntity ]),
-    PartymembersModule,
+    TypeOrmModule.forFeature([ PartyEntity, PartymemberEntity ]),
     UsersModule,
   ],
-  providers: [PartiesService, UserPartyGuard],
-  controllers: [PartiesController],
-  exports: [PartiesService, UserPartyGuard],
+  controllers: [ PartiesController, PartymembersController ],
+  providers: [ PartiesService, PartymembersService ],
+  exports: [ PartiesService ],
 })
 export class PartiesModule {}

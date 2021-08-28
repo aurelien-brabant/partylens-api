@@ -3,7 +3,7 @@ import {CreateUserDto} from './dto/create-user.dto';
 import {UserExistsGuard} from './user-exists.guard';
 import {UsersService} from './users.service';
 
-@Controller()
+@Controller('/users/')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService

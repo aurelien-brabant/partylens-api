@@ -4,14 +4,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { PartiesModule } from './parties/parties.module';
-import {RouterModule} from '@nestjs/core';
-import {routes} from './routes';
-import { PartymembersModule } from './partymembers/partymembers.module';
 
 @Module({
   imports: [
-    UsersModule,
-    PartiesModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       username: process.env.POSTGRES_USER,
@@ -21,8 +16,8 @@ import { PartymembersModule } from './partymembers/partymembers.module';
       autoLoadEntities: true,
       synchronize: process.env.NODE_ENV === 'development' /* synchronization must be always disabled in production! */
     }),
-    RouterModule.register(routes),
-    PartymembersModule,
+    UsersModule,
+    PartiesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

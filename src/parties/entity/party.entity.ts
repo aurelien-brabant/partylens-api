@@ -1,6 +1,6 @@
-import {PartymemberEntity} from "src/partymembers/partymember.entity";
 import {UserEntity} from "src/users/user.entity";
 import {Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
+import {PartymemberEntity} from "./partymember.entity";
 
 @Entity()
 export class PartyEntity {

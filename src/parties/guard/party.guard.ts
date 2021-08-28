@@ -1,9 +1,11 @@
-import {CanActivate, ExecutionContext, Injectable, NotFoundException} from "@nestjs/common";
-import {PartiesService} from "./parties.service";
+import {CanActivate, ExecutionContext, forwardRef, Inject, Injectable } from "@nestjs/common";
+import {UsersService} from "src/users/users.service";
+import {PartiesService} from "../service/parties.service";
 
 @Injectable()
 export class UserPartyGuard implements CanActivate {
   constructor(
+    @Inject(forwardRef(() => UsersService))
     private readonly partiesService: PartiesService
   ) {};
 

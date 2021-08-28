@@ -1,6 +1,6 @@
-import {PartyEntity} from "src/parties/party.entity";
 import {UserEntity} from "src/users/user.entity";
 import {Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn} from "typeorm";
+import {PartyEntity} from "./party.entity";
 
 export enum PartymemberState {
   PENDING = -1,

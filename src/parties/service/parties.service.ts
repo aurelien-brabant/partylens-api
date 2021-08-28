@@ -1,11 +1,10 @@
-import {NotFoundException, UseGuards} from '@nestjs/common';
-import { Injectable, Query } from '@nestjs/common';
+import {NotFoundException} from '@nestjs/common';
+import { Injectable,} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
-import {PartymembersService} from 'src/partymembers/partymembers.service';
-import {UserExistsGuard} from 'src/users/user-exists.guard';
 import {Repository} from 'typeorm';
-import {CreatePartyDto} from './dto/create-party.dto';
-import {PartyEntity} from './party.entity';
+import {CreatePartyDto} from '../dto/create-party.dto';
+import {PartyEntity} from '../entity/party.entity';
+import {PartymembersService} from './partymembers.service';
 
 @Injectable()
 export class PartiesService {

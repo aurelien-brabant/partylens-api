@@ -1,8 +1,10 @@
-import { Body, Injectable, Param } from '@nestjs/common';
+import { Body, forwardRef, Injectable, Param, UseGuards } from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
+import {UserExistsGuard} from 'src/users/user-exists.guard';
 import {Repository} from 'typeorm';
-import {CreatePartymemberDto} from './dtos/create-partymember.dto';
-import {PartymemberEntity, PartymemberState} from './partymember.entity';
+import {CreatePartymemberDto} from '../dto/create-partymember.dto';
+import {PartymemberEntity} from '../entity/partymember.entity';
+import {UserPartyGuard} from '../guard/party.guard';
 
 /* Route: /users/:userId/parties/:partyId/members */
 
@@ -10,15 +12,13 @@ import {PartymemberEntity, PartymemberState} from './partymember.entity';
 export class PartymembersService {
   constructor(
     @InjectRepository(PartymemberEntity)
-    private readonly partymembersRepository: Repository<PartymemberEntity>,
+    private readonly partymembersRepository: Repository<PartymemberEntity>, 
   ) {}
 
+  @UseGuards(UserExistsGuard, UserPartyGuard)
   findAll(partyId: number) {
     return this.partymembersRepository.find({
       relations: [ 'party' ],
-      where: {
-        'party.id': partyId
-      }
     }); 
   }
 

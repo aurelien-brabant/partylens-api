@@ -1,6 +1,5 @@
 import {IsArray, IsDateString, IsNumber, IsObject, IsOptional, IsString} from "class-validator";
-import {CreatePartymemberDto} from "src/partymembers/dtos/create-partymember.dto";
-import {PartymemberEntity} from "src/partymembers/partymember.entity";
+import {PartymemberEntity} from "../entity/partymember.entity";
 
 export class CreatePartyDto {
   @IsString() 
