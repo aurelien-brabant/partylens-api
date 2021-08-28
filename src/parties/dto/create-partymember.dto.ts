@@ -1,12 +1,14 @@
-import {IsBoolean, IsBooleanString, IsNumber} from "class-validator";
+import {IsBoolean, IsBooleanString, IsNumber, IsOptional} from "class-validator";
 
 export class CreatePartymemberDto {
   @IsNumber()
   id: number;
 
   @IsBoolean()
-  canEditItems: boolean;
+  @IsOptional()
+  canEditItems?: boolean;
 
   @IsBoolean()
-  canUseChat: boolean;
+  @IsOptional()
+  canUseChat?: boolean;
 }

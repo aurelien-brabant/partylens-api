@@ -20,6 +20,8 @@ export class UserExistsGuard implements CanActivate {
       return false;
     }
 
-    return !!await this.usersService.findById(userId);
+    request.userResource = await this.usersService.findById(userId);
+    
+    return !!request.userResource;
   }
 }

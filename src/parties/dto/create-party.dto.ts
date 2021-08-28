@@ -1,5 +1,7 @@
-import {IsArray, IsDateString, IsNumber, IsObject, IsOptional, IsString} from "class-validator";
+import {Type} from "class-transformer";
+import {IsArray, IsDateString, IsNumber, IsObject, IsOptional, IsString, ValidateNested} from "class-validator";
 import {PartymemberEntity} from "../entity/partymember.entity";
+import {CreatePartymemberDto} from "./create-partymember.dto";
 
 export class CreatePartyDto {
   @IsString() 
@@ -12,6 +14,8 @@ export class CreatePartyDto {
   startDate: string;
 
   @IsArray()
+  @ValidateNested({ each: true }) 
   @IsOptional()
-  members: Partial<PartymemberEntity>[];
+  @Type(() => CreatePartymemberDto)
+  members: CreatePartymemberDto[];
 }

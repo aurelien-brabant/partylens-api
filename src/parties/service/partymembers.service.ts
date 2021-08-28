@@ -4,7 +4,7 @@ import {UsersService} from 'src/users/service/users.service';
 import { Repository } from 'typeorm';
 import { CreatePartymemberDto } from '../dto/create-partymember.dto';
 import {UpdatePartymemberDto} from '../dto/update-partymember.dto';
-import { PartymemberEntity, PartymemberState } from '../entity/partymember.entity';
+import { PartymemberEntity } from '../entity/partymember.entity';
 
 @Injectable()
 export class PartymembersService {
@@ -49,6 +49,7 @@ export class PartymembersService {
   }
 
   async create(partyId: number, memberData: CreatePartymemberDto) {
+    console.log(memberData);
     const user = await this.usersService.findById(memberData.id);
 
     const existingMember = await this.partymembersRepository.findOne({
@@ -60,6 +61,7 @@ export class PartymembersService {
       }
     });
 
+    console.log(existingMember);
     if (existingMember && existingMember.party.id === partyId) {
       throw new ConflictException('User already in party');
     }
