@@ -77,9 +77,11 @@ export class PartiesService {
 
     party = await this.partiesRepository.save(party);
 
+    /*
     for (const member of partyData.members) {
       await this.partymembersService.create(party.id, { id: member.id, canUseChat: member.canUseChat, canEditItems: member.canEditItems });
     }
+    */
 
     return party;
   }
