@@ -1,4 +1,4 @@
-import {UserEntity} from "src/users/user.entity";
+import {UserEntity} from "src/users/entity/user.entity";
 import {Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn} from "typeorm";
 import {PartyEntity} from "./party.entity";
 

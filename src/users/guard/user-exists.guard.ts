@@ -1,6 +1,6 @@
 import {CanActivate, ExecutionContext, forwardRef, Inject, Injectable, NotFoundException} from "@nestjs/common";
 import {Observable} from "rxjs";
-import {UsersService} from "./users.service";
+import {UsersService} from "../service/users.service";
 
 @Injectable()
 export class UserExistsGuard implements CanActivate {

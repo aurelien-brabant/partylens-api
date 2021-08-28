@@ -1,11 +1,10 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
-import {UserExistsGuard} from 'src/users/user-exists.guard';
+import {UserExistsGuard} from 'src/users/guard/user-exists.guard';
 import {CreatePartymemberDto} from '../dto/create-partymember.dto';
-import {UserPartyGuard} from '../guard/party.guard';
 import {PartymembersService} from '../service/partymembers.service';
 
 @Controller('/users/:userId/parties/:partyId/members')
-@UseGuards(UserExistsGuard, UserPartyGuard)
+@UseGuards(UserExistsGuard)
 export class PartymembersController {
   constructor(
     private readonly partymembersService: PartymembersService

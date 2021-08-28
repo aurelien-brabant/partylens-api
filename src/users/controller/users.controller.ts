@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
-import {CreateUserDto} from './dto/create-user.dto';
-import {UserExistsGuard} from './user-exists.guard';
-import {UsersService} from './users.service';
+import {CreateUserDto} from '../dto/create-user.dto';
+import {UserExistsGuard} from '../guard/user-exists.guard';
+import {UsersService} from '../service/users.service';
 
 @Controller('/users/')
 export class UsersController {

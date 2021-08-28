@@ -1,8 +1,8 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {Repository} from 'typeorm';
-import {CreateUserDto} from './dto/create-user.dto';
-import {UserEntity, UserState} from './user.entity';
+import {CreateUserDto} from '../dto/create-user.dto';
+import {UserEntity, UserState} from '../entity/user.entity';
 
 const bcrypt = require('bcrypt');
 
@@ -54,6 +54,9 @@ export class UsersService {
         throw new ConflictException('A user with the same address email already exists');
       }
     }
+
+    delete newUser.password;
+    delete newUser.state;
 
     return newUser; 
   }

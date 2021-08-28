@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
-import {UserExistsGuard} from 'src/users/user-exists.guard';
+import {UserExistsGuard} from 'src/users/guard/user-exists.guard';
 import {CreatePartyDto} from '../dto/create-party.dto';
 import {PartiesService} from '../service/parties.service';
 
