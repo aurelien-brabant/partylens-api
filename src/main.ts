@@ -6,16 +6,16 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const config = new DocumentBuilder()
-  .setTitle('Partylens API')
-  .setDescription('This is a description')
-  .setVersion('1.0')
-  .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document, {
-  });
-
-  console.log('hey');
+  if (process.env.NODE_ENV === 'development') {
+    const config = new DocumentBuilder()
+    .setTitle('Partylens API')
+    .setDescription('Documentation about the RESTful partylens.fr API')
+    .setVersion('1.0')
+    .build();
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('apidoc', app, document, {
+    });
+  }
 
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
