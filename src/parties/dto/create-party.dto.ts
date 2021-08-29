@@ -24,5 +24,5 @@ export class CreatePartyDto {
   @ValidateNested({ each: true }) 
   @IsOptional()
   @Type(() => CreatePartymemberDto)
-  members: CreatePartymemberDto[];
+  members?: CreatePartymemberDto[];
 }

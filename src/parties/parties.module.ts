@@ -12,6 +12,8 @@ import { PartiesController } from './controller/parties.controller';
 import {PartymembersController} from './controller/partymembers.controller';
 import {PartyItemEntity} from './entity/partyitem.entity';
 import {PartyItemParticipationEntity} from './entity/partyitemparticipation.entity';
+import {PartyitemsController} from './controller/partyitems.controller';
+import { PartyitemsService } from './service/partyitems.service';
 
 @Module({
   imports: [
@@ -23,8 +25,8 @@ import {PartyItemParticipationEntity} from './entity/partyitemparticipation.enti
     ]),
     UsersModule,
   ],
-  controllers: [ PartiesController, PartymembersController ],
-  providers: [ PartiesService, PartymembersService ],
+  controllers: [ PartiesController, PartymembersController, PartyitemsController ],
+  providers: [ PartiesService, PartymembersService, PartyitemsService ],
   exports: [ PartiesService ],
 })
 export class PartiesModule {}

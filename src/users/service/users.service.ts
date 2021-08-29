@@ -15,24 +15,21 @@ export class UsersService {
     private readonly usersRepository: Repository<UserEntity>
   ) {}
 
-  async findByEmail(email: string): Promise<UserEntity> {
-    const user = await this.usersRepository.findOne({ email });
 
-    if (!user) {
-      throw new NotFoundException('No user with this email address');
-    }
-
-    return user;
+  /**
+   * XXX - Find by email has the particularity that it explicitly selects the password property,
+   * which is never selected by default. This is why findByEmail should be user for authentication
+   * purposes.
+   */
+  findByEmail(email: string): Promise<UserEntity> {
+    return this.usersRepository.createQueryBuilder('user')
+      .where("user.email = :email", { email })
+      .addSelect('user.password')
+      .getOne();
   }
       
-  async findById(id: number): Promise<UserEntity> {
-    const user = await this.usersRepository.findOne(id);
-
-    if (!user) {
-      throw new NotFoundException('No user with such id');
-    }
-
-    return user;
+  findById(id: number): Promise<UserEntity> {
+    return this.usersRepository.findOne(id);
   }
 
   findAll(): Promise<UserEntity[]> {

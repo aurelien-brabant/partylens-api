@@ -41,16 +41,15 @@ export class PartymembersService {
       }
     )
 
-    if (!member) {
-      throw new NotFoundException('No such member in party');
-    }
-
     return member;
   }
 
   async create(partyId: number, memberData: CreatePartymemberDto) {
-    console.log(memberData);
     const user = await this.usersService.findById(memberData.id);
+
+    if (!user) {
+      throw new NotFoundException(`Could not create party member: user with id #${memberData.id} does not exist`);
+    }
 
     const existingMember = await this.partymembersRepository.findOne({
       relations: [ 'party', 'user' ],
@@ -61,14 +60,16 @@ export class PartymembersService {
       }
     });
 
-    console.log(existingMember);
     if (existingMember && existingMember.party.id === partyId) {
       throw new ConflictException('User already in party');
     }
 
+    delete memberData.id;
+    
     const member = this.partymembersRepository.create({
       party: { id: partyId },
       user: { id: user.id  },
+      ... memberData
     });
 
     return this.partymembersRepository.save(member);

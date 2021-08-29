@@ -1,4 +1,4 @@
-import {NotFoundException} from '@nestjs/common';
+import {NotFoundException, UnauthorizedException} from '@nestjs/common';
 import { Injectable,} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {Repository} from 'typeorm';
@@ -43,26 +43,33 @@ export class PartiesService {
       relations: ['owner']
     })
 
-    if (!party) {
-      throw new NotFoundException('No such party');
-    }
-
     return party;
   }
 
-  async findUserPartyById(userId: number, partyId: number): Promise<PartyEntity>
+  findAll(): Promise<PartyEntity[]> {
+    return this.partiesRepository.find();
+  }
+
+  async findUserPartyById(
+    userId: number,
+    partyId: number, 
+    notFoundThrowCallback?: () => string
+  ): Promise<PartyEntity>
   {
     const party = await this.partiesRepository.findOne(partyId, {
-      relations: ['members', 'owner']
+      relations: ['members', 'members.user', 'owner']
     });
 
     if (!party || !this.isUserInvolvedInParty(party, userId)) {
-      throw new NotFoundException('No such party');
+      if (notFoundThrowCallback) {
+         throw new NotFoundException(notFoundThrowCallback());
+      }
+      return null;
     }
 
     return party;
   }
- 
+
   async findPartiesForUser(
     userId: number,                      
     options: {
@@ -85,25 +92,37 @@ export class PartiesService {
                           party.owner.id === userId : this.isUserInvolvedInParty(party, userId));
   }
 
-  async create(userId: number, partyData: CreatePartyDto) {
+  async create(ownerId: number, partyData: CreatePartyDto) {
+    const { members, ...remainingData } = partyData;
+
+    console.log(ownerId);
+
     let party = this.partiesRepository.create({
-      members: [
-        {
-          id: userId,
-          role: PartyUserRole.ADMINISTRATOR
-        }
-      ],
-      owner: { id: userId },
-      ... partyData,
+      owner: { id: ownerId },
+      members: [],
+      ... remainingData
     });
 
+    /* save for a first time to get the id of the new entry */
     party = await this.partiesRepository.save(party);
 
-    for (const member of party.members) {
-      await this.partymembersService.create(party.id, member);
+    /* create member representation for owner, making it party admin by default */
+    party.members.push(await this.partymembersService.create(party.id, {
+        id: ownerId,
+        role: PartyUserRole.ADMINISTRATOR,
+        canUseChat: true,
+        canEditItems: true,
+      })
+    );
+
+    /* append to the member list (that contains only the owner at this point) all the specified members, if any */
+    if (members) {
+      for (const member of members) {
+        party.members.push(await this.partymembersService.create(party.id, member));
+      }
     }
 
-    return party;
+    return this.partiesRepository.save(party);
   }
 
   async updateUserParty(
@@ -112,14 +131,13 @@ export class PartiesService {
     attrs: UpdatePartyDto
   ): Promise<PartyEntity>
   {
-    const party = await this.findUserPartyById(userId, partyId);
+    const party = await this.findUserPartyById(userId, partyId, () => 'Could not update: not found');
 
-    /* push newly provided members all together in the existing array */
     if (attrs.members) {
       for (const member of attrs.members) {
         party.members.push(await this.partymembersService.create(partyId, member));
       }
-      delete attrs.members; /* do not REPLACE old array with the new one */
+      delete attrs.members;
     }
 
     Object.assign(party, attrs);
@@ -129,9 +147,12 @@ export class PartiesService {
 
   async deleteUserParty(userId: number, partyId: number): Promise<PartyEntity>
   {
-    const party = await this.findUserPartyById(userId, partyId);
+    const party = await this.findUserPartyById(userId, partyId,
+                                               () => `Could not delete party: party with id ${partyId} does not exist for that user.`);
+    if (party.owner.id !== userId) {
+      throw new UnauthorizedException('Could not delete party: permission denied: member but not owner');
+    }
 
-    /* Remove all the member objects attached to the party, to avoid foreign key violation */
     for (const member of party.members) {
       await this.partymembersService.remove(partyId, member.id)
     }

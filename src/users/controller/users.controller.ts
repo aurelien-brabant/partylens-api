@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
-import {ApiConflictResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiTags} from '@nestjs/swagger';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {ApiConflictResponse, ApiCreatedResponse, ApiTags} from '@nestjs/swagger';
 import {CreateUserDto} from '../dto/create-user.dto';
 import {UserExistsGuard} from '../guard/user-exists.guard';
 import {UsersService} from '../service/users.service';

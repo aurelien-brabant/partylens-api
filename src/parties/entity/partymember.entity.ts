@@ -1,5 +1,5 @@
 import {UserEntity} from "src/users/entity/user.entity";
-import {Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn} from "typeorm";
+import {Column, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
 import {PartyEntity} from "./party.entity";
 
 /* XXX: the below enum may be represented by a boolean instead, but it has been done
@@ -7,14 +7,13 @@ import {PartyEntity} from "./party.entity";
  */
 
 export enum PartyUserRole {
-  DEFAULT,
-  ADMINISTRATOR
+  DEFAULT = 'DEFAULT',
+  ADMINISTRATOR = 'ADMIN'
 }
 
 export enum PartymemberState {
-  PENDING,
-  OUT,
-  IN,
+  INVITATION_PENDING = 'PENDING',
+  IN = 'IN',
 }
 
 @Entity()
@@ -32,17 +31,17 @@ export class PartymemberEntity
   @Column({
     type: 'enum',
     enum: PartymemberState,
-    default: PartymemberState.PENDING
+    default: PartymemberState.INVITATION_PENDING
   })
   state: PartymemberState
 
   @Column({
-    default: true
+    default: false
   })
   canUseChat: boolean;
 
   @Column({
-    default: true
+    default: false
   })
   canEditItems: boolean;
 
@@ -51,6 +50,6 @@ export class PartymemberEntity
     enum: PartyUserRole,
     default: PartyUserRole.DEFAULT
   })
-  role: PartyUserRole
+  role: PartyUserRole;
 }
 
