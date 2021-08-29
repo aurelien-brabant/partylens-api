@@ -9,5 +9,5 @@ export class UpdatePartymemberDto extends PartialType(CreatePartymemberDto)  {
    */
   @IsEnum(PartymemberState)
   @IsOptional()
-  state?: boolean;
+  state?: PartymemberState;
 }

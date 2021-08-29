@@ -34,7 +34,6 @@ export class PartyitemsService {
   async create(partyId: number, itemData: CreatePartyItemDto): Promise<PartyItemEntity>  {
     const member = await this.partymembersService.findById(partyId, itemData.ownerId);
 
-
     if (!member.canEditItems) {
       throw new UnauthorizedException('Member is not permitted to add an item');
     }

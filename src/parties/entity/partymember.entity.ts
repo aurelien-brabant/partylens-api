@@ -14,6 +14,7 @@ export enum PartyUserRole {
 export enum PartymemberState {
   INVITATION_PENDING = 'PENDING',
   IN = 'IN',
+  OUT = 'OUT',
 }
 
 @Entity()

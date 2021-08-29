@@ -1,4 +1,4 @@
-import {CanActivate, ExecutionContext, forwardRef, Inject, Injectable } from "@nestjs/common";
+import {CanActivate, ExecutionContext, forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import {PartiesService} from "../service/parties.service";
 
 @Injectable()
@@ -13,14 +13,19 @@ export class PartyExistsGuard implements CanActivate {
   ): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
 
-    const { userId, partyId } = request.params;
+    const userId = request.user.id;
+    const { partyId } = request.params;
 
     if (!partyId) {
       return false;
     }
 
-    request.partyResource = await this.partiesService.findUserPartyById(userId, partyId);
+    request.party = await this.partiesService.findUserPartyById(userId, partyId);
 
-    return !!request.partyResource;
+    if (!request.party) {
+      throw new NotFoundException(`Route error: party with id #${partyId} does not exist for such user.`)
+    }
+
+    return true;
   }
 }
