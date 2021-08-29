@@ -10,10 +10,17 @@ import {PartymembersService} from './service/partymembers.service';
 
 import { PartiesController } from './controller/parties.controller';
 import {PartymembersController} from './controller/partymembers.controller';
+import {PartyItemEntity} from './entity/partyitem.entity';
+import {PartyItemParticipationEntity} from './entity/partyitemparticipation.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ PartyEntity, PartymemberEntity ]),
+    TypeOrmModule.forFeature([
+      PartyEntity,
+      PartymemberEntity,
+      PartyItemEntity,
+      PartyItemParticipationEntity,
+    ]),
     UsersModule,
   ],
   controllers: [ PartiesController, PartymembersController ],
