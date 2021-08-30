@@ -49,6 +49,7 @@ export class PartymembersController {
   }
 
   /**
+   * # Permission guard: `MEMBER_INVITE`
    * Add a new user to the given party, creating a new **party member**.
    * Therefore, a `UserEntity` and a `PartymemberEntity` are two different objects, even if they are still closely related.
    */
@@ -62,10 +63,10 @@ export class PartymembersController {
   })
 
   @ApiUnauthorizedResponse({
-    description: 'Member is not a party administrator.'
+    description: 'Member is missing the `MEMBER_INVITE` permission.'
   })
 
-  @UseGuards(MemberPermissionGuard(MPBit.INVITE | MPBit.GRANT_PRIVILEGES | MPBit.KICK))
+  @UseGuards(MemberPermissionGuard(MPBit.MEMBER_INVITE))
   @Post('/')
   async create(
     @Param('partyId') partyId: number,
@@ -111,7 +112,7 @@ export class PartymembersController {
   })
 
   @ApiUnauthorizedResponse({
-    description: `- Attempt to mutate member representation of party's owner\n- Attempt to edit permissions without being administrator\n - Attempt to edit member state without being logged in as the mutated member`
+    description: `- Attempt to mutate member representation of party's owner\n- Attempt to edit permissions without \`GRANT_PRIVILEGES\` permission\n - Attempt to edit member state without being logged in as the mutated member`
   })
   
   @ApiUnauthorizedResponse({
@@ -153,14 +154,15 @@ export class PartymembersController {
     const loggedInMember = await this.partymembersService.findUserById(req.user.id, partyId);
 
     if (attrs.permissionBits !== undefined 
-         && !(loggedInMember.permissionBits & MPBit.GRANT_PRIVILEGES)) {
-          throw new UnauthorizedException('Could not update: permission denied: does not have the permission to grant privileges');
+         && !this.partymembersService.hasPermission(loggedInMember, MPBit.GRANT_PRIVILEGES)) {
+          throw new UnauthorizedException('Could not update member privileges: permission denied');
     }
     
     return this.partymembersService.patch(partyId, memberId, attrs)
   }
 
   /**
+   * # Permission guard: `MEMBER_KICK`
    * Delete a particular member for the given party.
    * Deleting a member completely erases data associated with it: item participation for an important one.
    *
@@ -183,7 +185,7 @@ export class PartymembersController {
     description: 'Attempt to delete the owner of the party.'
   })
 
-  @UseGuards(PartyAdminGuard)
+  @UseGuards(MemberPermissionGuard(MPBit.MEMBER_KICK))
   @Delete('/:memberId')
   async removeMemberFromParty(
     @Param('memberId') memberId: number,

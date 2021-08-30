@@ -1,7 +1,7 @@
 import {CanActivate, ExecutionContext, Injectable, mixin, NotFoundException, UnauthorizedException} from "@nestjs/common";
 import {PartymembersService} from "../service/partymembers.service";
 
-export const MemberPermissionGuard = (permissionBits: number) => {
+export const MemberPermissionGuard = (permissionBits: number): any => {
 
   @Injectable()
   class MemberPermissionGuardMixin implements CanActivate {
