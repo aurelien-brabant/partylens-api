@@ -5,7 +5,7 @@ import {Repository} from 'typeorm';
 import {CreatePartyDto} from '../dto/create-party.dto';
 import {UpdatePartyDto} from '../dto/update-party.dto';
 import {PartyEntity} from '../entity/party.entity';
-import {PartyUserRole} from '../entity/partymember.entity';
+import {PartymemberState, PartyUserRole} from '../entity/partymember.entity';
 import {PartymembersService} from './partymembers.service';
 
 @Injectable()
@@ -109,7 +109,7 @@ export class PartiesService {
     /* create member representation for owner, making it party admin by default */
     party.members.push(await this.partymembersService.create(party.id, {
         id: ownerId,
-        role: PartyUserRole.ADMINISTRATOR,
+        role: PartyUserRole.ADMIN,
         canUseChat: true,
         canEditItems: true,
       })
@@ -154,7 +154,7 @@ export class PartiesService {
     }
 
     for (const member of party.members) {
-      await this.partymembersService.remove(partyId, member.id)
+      await this.partymembersService.remove(member)
     }
     
     return this.partiesRepository.remove(party);

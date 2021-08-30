@@ -22,9 +22,7 @@ export class CreatePartymemberDto {
   @IsOptional()
   canUseChat?: boolean;
 
-  @IsEnum({
-    enum: PartyUserRole
-  })
   @IsOptional()
+  @IsEnum(PartyUserRole)
   role?: PartyUserRole;
 }
