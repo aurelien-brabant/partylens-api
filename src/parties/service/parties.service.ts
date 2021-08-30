@@ -95,8 +95,6 @@ export class PartiesService {
   async create(ownerId: number, partyData: CreatePartyDto) {
     const { members, ...remainingData } = partyData;
 
-    console.log(ownerId);
-
     let party = this.partiesRepository.create({
       owner: { id: ownerId },
       members: [],
@@ -109,7 +107,7 @@ export class PartiesService {
     /* create member representation for owner, making it party admin by default */
     party.members.push(await this.partymembersService.create(party.id, {
         id: ownerId,
-        role: PartyUserRole.ADMIN,
+        permissionBits: ~0, /* set all the bits to true for immutable owner */
         canUseChat: true,
         canEditItems: true,
       })
@@ -132,7 +130,6 @@ export class PartiesService {
   ): Promise<PartyEntity>
   {
     const party = await this.findUserPartyById(userId, partyId, () => 'Could not update: not found');
-
     if (attrs.members) {
       for (const member of attrs.members) {
         party.members.push(await this.partymembersService.create(partyId, member));

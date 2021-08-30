@@ -8,7 +8,16 @@ import {PartyEntity} from "./party.entity";
 
 export enum PartyUserRole {
   DEFAULT = 'DEFAULT',
-  ADMINISTRATOR = 'ADMIN'
+  ADMIN = 'ADMIN',
+}
+
+export enum MPBit {
+  INVITE = 1 << 0,
+  EDIT_ITEMS = 1 << 1,
+  CHAT_WR = 1 << 2,
+  CHAT_RD = 1 << 3,
+  KICK = 1 << 4,
+  GRANT_PRIVILEGES = 1 << 5
 }
 
 export enum PartymemberState {
@@ -47,10 +56,8 @@ export class PartymemberEntity
   canEditItems: boolean;
 
   @Column({
-    type: 'enum',
-    enum: PartyUserRole,
-    default: PartyUserRole.DEFAULT
+    default: 0
   })
-  role: PartyUserRole;
+  permissionBits: number;
 }
 

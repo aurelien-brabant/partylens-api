@@ -5,7 +5,8 @@ import {JwtAuthGuard} from 'src/auth/guard/jwt-auth.guard';
 import {UsersService} from 'src/users/service/users.service';
 import {CreatePartymemberDto} from '../dto/create-partymember.dto';
 import {UpdatePartymemberDto} from '../dto/update-partymember.dto';
-import {PartymemberState} from '../entity/partymember.entity';
+import {MPBit, PartymemberState} from '../entity/partymember.entity';
+import {MemberPermissionGuard} from '../guard/memberpermission.guard';
 import {PartyAdminGuard} from '../guard/party-admin.guard';
 import {PartyExistsGuard} from '../guard/party-exists.guard';
 import {PartymembersService} from '../service/partymembers.service';
@@ -64,7 +65,7 @@ export class PartymembersController {
     description: 'Member is not a party administrator.'
   })
 
-  @UseGuards(PartyAdminGuard)
+  @UseGuards(MemberPermissionGuard(MPBit.INVITE | MPBit.GRANT_PRIVILEGES | MPBit.KICK))
   @Post('/')
   async create(
     @Param('partyId') partyId: number,
@@ -127,7 +128,8 @@ export class PartymembersController {
     @Param('memberId') memberId: number,
     @Param('partyId') partyId: number,
     @Body() attrs: UpdatePartymemberDto
-  ) {
+  )
+  {
     const member = await this.partymembersService.findById(partyId, memberId);
 
     if (!member) {
@@ -148,10 +150,11 @@ export class PartymembersController {
       }
     }
 
-    /* Ensure the logged in user is a party admin if wanting to change permission of a member */
-    if ((attrs.canUseChat !== undefined || attrs.canEditItems !== undefined || attrs.role !== undefined)
-        && !await this.partymembersService.hasAdminRights(req.user.id, partyId)) {
-          throw new UnauthorizedException('Could not change member rights: permission denied');
+    const loggedInMember = await this.partymembersService.findUserById(req.user.id, partyId);
+
+    if (attrs.permissionBits !== undefined 
+         && !(loggedInMember.permissionBits & MPBit.GRANT_PRIVILEGES)) {
+          throw new UnauthorizedException('Could not update: permission denied: does not have the permission to grant privileges');
     }
     
     return this.partymembersService.patch(partyId, memberId, attrs)

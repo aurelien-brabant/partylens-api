@@ -1,18 +1,15 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable,} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {UserEntity} from 'src/users/entity/user.entity';
-import {UsersService} from 'src/users/service/users.service';
 import { Repository } from 'typeorm';
 import { CreatePartymemberDto } from '../dto/create-partymember.dto';
 import {UpdatePartymemberDto} from '../dto/update-partymember.dto';
-import { PartymemberEntity, PartymemberState, PartyUserRole } from '../entity/partymember.entity';
+import { PartymemberEntity } from '../entity/partymember.entity';
 
 @Injectable()
 export class PartymembersService {
   constructor(
     @InjectRepository(PartymemberEntity)
     private readonly partymembersRepository: Repository<PartymemberEntity>, 
-    private readonly usersService: UsersService,
   ) {}
 
   async findAll(partyId: number) {
@@ -85,25 +82,6 @@ export class PartymembersService {
   {
     return this.partymembersRepository.remove(member);
   }
-
-  async hasAdminRights(userId: number, partyId: number): Promise<boolean>
-  {
-    const member = await this.partymembersRepository.findOne({
-      relations: [ 'user', 'party' ],
-      where: {
-        party: {
-          id: partyId
-        },
-        user: {
-          id: userId
-        }
-      }
-    })
-
-    return member && member.role === PartyUserRole.ADMIN;
-  }
-
-
 }
 
 

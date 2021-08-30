@@ -1,5 +1,4 @@
 import {IsBoolean, IsEnum, IsNumber, IsOptional} from "class-validator";
-import {PartyUserRole} from "../entity/partymember.entity";
 
 export class CreatePartymemberDto {
   /**
@@ -23,6 +22,6 @@ export class CreatePartymemberDto {
   canUseChat?: boolean;
 
   @IsOptional()
-  @IsEnum(PartyUserRole)
-  role?: PartyUserRole;
+  @IsNumber()
+  permissionBits?: number;
 }
