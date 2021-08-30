@@ -12,12 +12,14 @@ export enum PartyUserRole {
 }
 
 export enum MPBit {
-  INVITE = 1 << 0,
-  EDIT_ITEMS = 1 << 1,
+  MEMBER_INVITE = 1 << 0,
+  MEMBER_KICK = 1 << 1,
   CHAT_WR = 1 << 2,
   CHAT_RD = 1 << 3,
-  KICK = 1 << 4,
-  GRANT_PRIVILEGES = 1 << 5
+  GRANT_PRIVILEGES = 1 << 4,
+  ITEM_CREATE = 1 << 5,
+  ITEM_ADD = 1 << 6,
+  ITEM_DEL = 1 << 7,
 }
 
 export enum PartymemberState {
