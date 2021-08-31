@@ -1,0 +1,47 @@
+version: '3.3'
+
+# XXX - Values of environment variables must be modified in the .env file at the root of
+# this repository. DO NOT EDIT ANYTHING HERE unless you know what you're doing!
+
+services:
+  
+  server:
+    container_name: backend-api
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - ${NESTJS_PORT}:${NESTJS_PORT} 
+    volumes:
+      - .:/usr/app
+    environment:
+      - NESTJS_PORT=${NESTJS_PORT}
+      - POSTGRES_USER=${POSTGRES_USER} 
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - POSTGRES_HOST=postgres
+      - NODE_ENV=${NODE_ENV}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - postgres
+
+  postgres:
+    container_name: backend-postgres
+    image: postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER} 
+      - POSTGRES_DB=${POSTGRES_DATABASE}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-persistence:/var/lib/postgresql/data
+
+  adminer:
+    container_name: backend-adminer
+    image: adminer
+    ports:
+      - 8080:8080
+
+# mongodb data should persist, unless the associated docker volume is deleted.
+# Such volume deletion is to be expected in development mode.
+volumes:
+  postgres-persistence:

@@ -5,7 +5,7 @@ FROM		alpine:3.13.4
 RUN			apk update && apk upgrade && apk add	\
 											yarn
 
-RUN			yarn global add @nestjs/cli
+RUN			yarn global add @nestjs/cli ts-node
 
 RUN			mkdir -p /usr/app
 
