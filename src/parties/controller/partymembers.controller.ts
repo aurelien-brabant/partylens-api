@@ -7,7 +7,6 @@ import {CreatePartymemberDto} from '../dto/create-partymember.dto';
 import {UpdatePartymemberDto} from '../dto/update-partymember.dto';
 import {MPBit, PartymemberState} from '../entity/partymember.entity';
 import {MemberPermissionGuard} from '../guard/memberpermission.guard';
-import {PartyAdminGuard} from '../guard/party-admin.guard';
 import {PartyExistsGuard} from '../guard/party-exists.guard';
 import {PartymembersService} from '../service/partymembers.service';
 

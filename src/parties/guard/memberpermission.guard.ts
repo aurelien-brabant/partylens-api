@@ -10,16 +10,16 @@ export const MemberPermissionGuard = (permissionBits: number): any => {
     ) {};
 
     async canActivate(context: ExecutionContext) {
-      const { user, party } = context.switchToHttp().getRequest();
+      const req = context.switchToHttp().getRequest();
+      const { user, party } = req;
 
-      const loggedMember = await this.partymembersService.findUserById(user.id, party.id);
+      req.userAsPartyMember = await this.partymembersService.findUserById(user.id, party.id);
 
-      /* should never happen in pratice */
-      if (!loggedMember) {
+      if (!req.userAsPartyMember) {
         throw new NotFoundException('Unexpected permission guard error: member not found');
       }
-      
-      return this.partymembersService.hasPermission(loggedMember, permissionBits);
+
+      return this.partymembersService.hasPermission(req.userAsPartyMember, permissionBits);
     }
   }
 

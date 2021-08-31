@@ -16,7 +16,7 @@ export class PartyitemsService {
 
   findAll(partyId: number): Promise<PartyItemEntity[]> {
     return this.partyitemsRepository.find({
-      relations: ['party', 'owner'],
+      relations: ['owner'],
       where: {
         party: {
           id: partyId

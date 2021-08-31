@@ -12,6 +12,7 @@ export enum PartyUserRole {
 }
 
 export enum MPBit {
+  NONE = 0,
   MEMBER_INVITE = 1 << 0,
   MEMBER_KICK = 1 << 1,
   CHAT_WR = 1 << 2,
