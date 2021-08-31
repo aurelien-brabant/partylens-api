@@ -12,16 +12,10 @@ the API along a postgres database instance:
 
 ### Run!
 
-FIRST, don't forget to `yarn install`. 
-
-If you're on Linux, you can install from inside the docker container using `docker exec -it backend-api yarn install` *after* docker-compose did its things. 
-
-If you're not on Linux however, **install yarn and run the above install command**...
-Unless you want to wait forever for it to complete when inside the docker container.
-
 ```shell
 docker-compose up -d
 ```
+This should take a few minutes.
 
 If everything went well, the API should be exposed on port `5000` by default (as defined in the `.env` file you can freely edit).
 
