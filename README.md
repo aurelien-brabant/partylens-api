@@ -1,8 +1,8 @@
 # Partylens API
 
-## For front-end developers
+## For frontend developers
 
-In case you need to play with the API while building the backend, here are the instructions to launch an instance of
+In case you need to play with the API while building the frontend, here are the instructions to launch an instance of
 the API along a postgres database instance:
 
 ### Requirements
@@ -12,8 +12,9 @@ the API along a postgres database instance:
 
 ### Run!
 
-FIRST, don't forget to `yarn install`. If you're on Linux, you can install from inside the docker container using
-`docker exec -it backend-api yarn install` *after* docker-compose did its things. 
+FIRST, don't forget to `yarn install`. 
+
+If you're on Linux, you can install from inside the docker container using `docker exec -it backend-api yarn install` *after* docker-compose did its things. 
 
 If you're not on Linux however, **install yarn and run the above install command**...
 Unless you want to wait forever for it to complete when inside the docker container.
