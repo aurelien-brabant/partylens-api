@@ -1,4 +1,6 @@
-import {Column, Entity, PrimaryGeneratedColumn} from "typeorm";
+import {Column, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
+import {PartyEntity} from "./party.entity";
+import {PartymemberEntity} from "./partymember.entity";
 
 @Entity()
 export class PartyItemEntity {
@@ -8,7 +10,7 @@ export class PartyItemEntity {
   @Column({
     unique: true
   })
-  title: string;
+  label: string;
 
   @Column({
     nullable: true,
@@ -16,21 +18,12 @@ export class PartyItemEntity {
   })
   description?: string | null;
   
-  /**
-   * Id of the PartymemberEntity that made this item proposal
-   */
-  @Column()
-  ownerId: number;
+  @ManyToOne(() => PartymemberEntity)
+  owner: PartymemberEntity;
 
-  /**
-   * Id of the PartyEntity that this item proposal is related to
-   */
-  @Column()
-  partyId: number;
+  @ManyToOne(() => PartyEntity)
+  party: PartyEntity;
 
-  /**
-   * The quantity of this item which is needed to complete the proposal
-   */
   @Column()
   amountGoal: number;
 }

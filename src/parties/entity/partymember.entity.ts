@@ -18,8 +18,9 @@ export enum MPBit {
   CHAT_RD = 1 << 3,
   GRANT_PRIVILEGES = 1 << 4,
   ITEM_CREATE = 1 << 5,
-  ITEM_ADD = 1 << 6,
+  ITEM_INCREMENT = 1 << 6,
   ITEM_DELETE = 1 << 7,
+  ITEM_EDIT = 1 << 8,
 }
 
 export enum PartymemberState {

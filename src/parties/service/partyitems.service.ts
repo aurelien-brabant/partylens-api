@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {Repository} from 'typeorm';
 import {CreatePartyItemDto} from '../dto/create-partyitem.dto';
@@ -16,8 +16,11 @@ export class PartyitemsService {
 
   findAll(partyId: number): Promise<PartyItemEntity[]> {
     return this.partyitemsRepository.find({
+      relations: ['party', 'owner'],
       where: {
-        partyId
+        party: {
+          id: partyId
+        }
       }
     })
   }
@@ -25,46 +28,42 @@ export class PartyitemsService {
   findById(partyId: number, itemId: number): Promise<PartyItemEntity>
   {
     return this.partyitemsRepository.findOne(itemId, {
+      relations: ['party', 'owner'],
       where: {
-        partyId
+        party: {
+          id: partyId
+        }
       }
     });
   }
 
-  async create(partyId: number, itemData: CreatePartyItemDto): Promise<PartyItemEntity>  {
-    const member = await this.partymembersService.findById(partyId, itemData.ownerId);
-
-    if (!member.canEditItems) {
-      throw new UnauthorizedException('Member is not permitted to add an item');
-    }
-
+  async create(userId: number, partyId: number, itemData: CreatePartyItemDto): Promise<PartyItemEntity>  {
     let newItem = this.partyitemsRepository.create({
       ... itemData,
-      partyId,
+      party: { id: partyId },
+      owner: { id: userId }
     });
 
     try {
       newItem = await this.partyitemsRepository.save(newItem);
     } catch(error) {
       if (error?.code === '23505') {
-        throw new ConflictException('An item with the same title already exists.');
+        throw new Error('An item with the same title already exists.');
       }
     }
 
     return newItem;
   }
 
-  async update(partyId: number, itemId: number, attrs: UpdatePartyItemDto): Promise<PartyItemEntity>
+  update(item: PartyItemEntity, attrs: UpdatePartyItemDto): Promise<PartyItemEntity>
   {
-    const item = this.findById(partyId, itemId);
-
-    if (!item) {
-      throw new NotFoundException('Could not update party item: no such item in party');
-    }
-    
     Object.assign(item, attrs);
 
-    
-    return null;
+    return this.partyitemsRepository.save(item);
+  }
+
+  remove(item: PartyItemEntity): Promise<PartyItemEntity>
+  {
+    return this.partyitemsRepository.remove(item);
   }
 }
