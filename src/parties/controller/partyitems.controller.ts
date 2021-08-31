@@ -1,7 +1,8 @@
-import {Delete} from '@nestjs/common';
+import {Delete, HttpException} from '@nestjs/common';
 import { Body, ConflictException, Controller, Get, NotFoundException, Param, Patch, Post, Request, UnauthorizedException, UseGuards } from '@nestjs/common';
 import {ApiBearerAuth, ApiConflictResponse, ApiNotFoundResponse, ApiTags, ApiUnauthorizedResponse} from '@nestjs/swagger';
 import {JwtAuthGuard} from 'src/auth/guard/jwt-auth.guard';
+import {ServiceException} from 'src/misc/serviceexception';
 import {CreatePartyItemDto} from '../dto/create-partyitem.dto';
 import {UpdatePartyItemDto} from '../dto/update-partyitem.dto';
 import {MPBit} from '../entity/partymember.entity';
@@ -53,16 +54,18 @@ export class PartyitemsController {
 
   @UseGuards(MemberPermissionGuard(MPBit.ITEM_CREATE))
   @Post('/')
-  create(
+  async create(
     @Param('partyId') partyId: number,
     @Body() itemData: CreatePartyItemDto,
     @Request() req: any,
   )
   {
     try {
-      return this.partyitemsService.create(req.user.id, partyId, itemData);
+      return await this.partyitemsService.create(req.user.id, partyId, itemData);
     } catch (error) {
-      throw new ConflictException(error);
+      if (error instanceof ServiceException) {
+        throw new HttpException(error.message, error.httpStatus);
+      }
     }
   }
 

@@ -1,9 +1,12 @@
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
+import {ServiceException} from 'src/misc/serviceexception';
 import {Repository} from 'typeorm';
 import {CreatePartyItemDto} from '../dto/create-partyitem.dto';
 import {UpdatePartyItemDto} from '../dto/update-partyitem.dto';
 import {PartyItemEntity} from '../entity/partyitem.entity';
+import {PartyItemParticipationEntity} from '../entity/partyitemparticipation.entity';
+import {PartyitemparticipationsService} from './partyitemparticipations.service';
 import {PartymembersService} from './partymembers.service';
 
 @Injectable()
@@ -11,12 +14,12 @@ export class PartyitemsService {
   constructor(
     @InjectRepository(PartyItemEntity)
     private readonly partyitemsRepository: Repository<PartyItemEntity>,
-    private readonly partymembersService: PartymembersService,
+    private readonly participationsService: PartyitemparticipationsService
   ) {}
 
   findAll(partyId: number): Promise<PartyItemEntity[]> {
     return this.partyitemsRepository.find({
-      relations: ['owner'],
+      relations: ['owner', 'participations', 'participations.owner', 'participations.owner.user'],
       where: {
         party: {
           id: partyId
@@ -28,7 +31,7 @@ export class PartyitemsService {
   findById(partyId: number, itemId: number): Promise<PartyItemEntity>
   {
     return this.partyitemsRepository.findOne(itemId, {
-      relations: ['party', 'owner'],
+      relations: ['party', 'owner', 'participations', 'participations.owner', 'participations.owner.user' ],
       where: {
         party: {
           id: partyId
@@ -48,7 +51,7 @@ export class PartyitemsService {
       newItem = await this.partyitemsRepository.save(newItem);
     } catch(error) {
       if (error?.code === '23505') {
-        throw new Error('An item with the same title already exists.');
+        throw new ServiceException('An item with the same title already exists.', HttpStatus.CONFLICT);
       }
     }
 
@@ -64,6 +67,10 @@ export class PartyitemsService {
 
   remove(item: PartyItemEntity): Promise<PartyItemEntity>
   {
+    for (const participation of item.participations) {
+      this.participationsService.removeOne(item.id, participation.id);
+    }
+
     return this.partyitemsRepository.remove(item);
   }
 }

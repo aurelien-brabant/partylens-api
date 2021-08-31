@@ -1,5 +1,6 @@
-import {Column, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
+import {Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 import {PartyEntity} from "./party.entity";
+import {PartyItemParticipationEntity} from "./partyitemparticipation.entity";
 import {PartymemberEntity} from "./partymember.entity";
 
 @Entity()
@@ -23,6 +24,9 @@ export class PartyItemEntity {
 
   @ManyToOne(() => PartyEntity)
   party: PartyEntity;
+
+  @OneToMany(() => PartyItemParticipationEntity, participation => participation.item)
+  participations: PartyItemParticipationEntity[];
 
   @Column()
   amountGoal: number;
