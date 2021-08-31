@@ -9,11 +9,9 @@ services:
     container_name: backend-api
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile.frontend
     ports:
       - ${NESTJS_PORT}:${NESTJS_PORT} 
-    volumes:
-      - .:/usr/app
     environment:
       - NESTJS_PORT=${NESTJS_PORT}
       - POSTGRES_USER=${POSTGRES_USER} 

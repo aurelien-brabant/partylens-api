@@ -1,0 +1,14 @@
+FROM		alpine:3.13.4
+
+RUN			apk update && apk upgrade && apk add	\
+											yarn
+
+RUN			yarn global add @nestjs/cli ts-node
+
+WORKDIR		/usr/app
+
+COPY		. .
+
+RUN			yarn install
+
+ENTRYPOINT	[ "yarn", "start" ]
