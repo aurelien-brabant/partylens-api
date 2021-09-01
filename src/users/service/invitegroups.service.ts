@@ -19,17 +19,45 @@ export class InviteGroupsService {
     private readonly usersRepository: Repository<UserEntity>
   ) {};
 
-  findAll(): Promise<InviteGroupEntity[]>
+  /**
+   * Find all the invite groups related to a given user,
+   *
+   * @param uid the id of the user.
+   *
+   * @return an array that contains all the invite groups the user has.
+   * An empty array is returned if there is none.
+   */
+
+  findAll(uid: number): Promise<InviteGroupEntity[]>
   {
     return this.inviteGroupRepo.find({
-      relations: [ 'users' ]
+      relations: [ 'users', 'owner' ],
+      where: {
+        owner: {
+          id: uid
+        }
+      }
     });
   }
 
-  findById(gid: number): Promise<InviteGroupEntity>
+  /**
+   * Find an InviteGroupEntity for a specific user.
+   *
+   * @param uid the id of the user
+   * @param gid the id of the invite group to find.
+   *
+   * @return the invite group if found, null otherwise.
+   */
+
+  findById(uid: number, gid: number): Promise<InviteGroupEntity>
   {
     return this.inviteGroupRepo.findOne(gid, {
-      relations: [ 'users' ]
+      relations: [ 'users', 'owner' ],
+      where: {
+        owner: {
+          id: uid
+        }
+      }
     });
   }
 
@@ -115,7 +143,7 @@ export class InviteGroupsService {
     uids?: number[]
   ): Promise<InviteGroupEntity>
   {
-    const igrp = await this.findById(gid);
+    const igrp = await this.findById(ownerId, gid);
 
     if (!igrp) {
       throw new ServiceException('Could not found an invite group with that id for that user', HttpStatus.NOT_FOUND);
@@ -149,9 +177,9 @@ export class InviteGroupsService {
     return this.inviteGroupRepo.save(igrp);
   }
   
-  async removeOne(gid: number): Promise<InviteGroupEntity>
+  async removeOne(ownerId: number, gid: number): Promise<InviteGroupEntity>
   {
-    const igrp = await this.findById(gid);
+    const igrp = await this.findById(ownerId, gid);
 
     if (!igrp) {
       throw new ServiceException('Could not found an invite group with that id for that user', HttpStatus.NOT_FOUND);

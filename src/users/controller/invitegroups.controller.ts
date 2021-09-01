@@ -23,9 +23,11 @@ export class InviteGroupsController {
    */
 
   @Get('')
-  findAll(): Promise<InviteGroupEntity[]>
+  findAll(
+    @Param('userId') ownerId: number,
+  ): Promise<InviteGroupEntity[]>
   {
-    return this.inviteGroupsService.findAll();
+    return this.inviteGroupsService.findAll(ownerId);
   }
 
   /**
@@ -73,10 +75,11 @@ export class InviteGroupsController {
 
   @Get('/:inviteId')
   async findOne(
-    @Param('inviteId') inviteId: number
+    @Param('userId') ownerId: number,
+    @Param('inviteId') inviteId: number,
   )
   {
-    const igrp = await this.inviteGroupsService.findById(inviteId);
+    const igrp = await this.inviteGroupsService.findById(ownerId, inviteId);
 
     if (!igrp) {
       new NotFoundException(`Could not found an invite group with id ${inviteId} for that user`);
@@ -112,11 +115,12 @@ export class InviteGroupsController {
 
   @Delete('/:inviteId')
   async removeOne(
+    @Param('userId') userId: number,
     @Param('inviteId') inviteId: number
   )
   {
     try {
-      return await this.inviteGroupsService.removeOne(inviteId);
+      return await this.inviteGroupsService.removeOne(userId, inviteId);
     } catch(error) {
       if (error instanceof ServiceException) {
         error.throwAsHttpException();
