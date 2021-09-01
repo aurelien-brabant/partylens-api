@@ -29,11 +29,15 @@ export class UsersService {
   }
       
   findById(id: number): Promise<UserEntity> {
-    return this.usersRepository.findOne(id);
+    return this.usersRepository.findOne(id, {
+      relations: ['invitegroups']
+    });
   }
 
   findAll(): Promise<UserEntity[]> {
-    return this.usersRepository.find();
+    return this.usersRepository.find({
+      relations: ['invitegroups']
+    });
   }
 
   async create(userData: CreateUserDto): Promise<UserEntity> {
@@ -42,6 +46,7 @@ export class UsersService {
     let newUser = this.usersRepository.create({
       ... userData,
       state: UserState.PENDING_CONFIRMATION,
+      invitegroups: []
     });
 
     try {

@@ -1,4 +1,4 @@
-import {HttpStatus} from "@nestjs/common";
+import {HttpException, HttpStatus} from "@nestjs/common";
 
 /**
  * Because throwing HTTP exceptions from a service is considered bad design,
@@ -15,5 +15,10 @@ export class ServiceException extends Error {
     super(message);
     this.name = 'ServiceException'
     this.httpStatus = httpStatus;
+  }
+
+  throwAsHttpException()
+  {
+    throw new HttpException(this.message, this.httpStatus);
   }
 }

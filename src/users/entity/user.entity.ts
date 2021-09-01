@@ -1,4 +1,5 @@
-import {Column, Entity, PrimaryGeneratedColumn} from "typeorm";
+import {Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
+import {InviteGroupEntity} from "./invitegroup.entity";
 
 export enum UserState
 {
@@ -42,4 +43,13 @@ export class UserEntity {
     default: UserRolePrivilege.DEFAULT,
   })
   privilege: number;
+
+  @OneToMany(() => InviteGroupEntity, igrp => igrp.owner)
+  invitegroups: InviteGroupEntity[];
+
+  @ManyToMany(() => InviteGroupEntity, igrp => igrp.users, {
+    cascade: true
+  })
+  @JoinTable()
+  invitedgroups: InviteGroupEntity[];
 }
