@@ -15,7 +15,6 @@ export class UsersService {
     private readonly usersRepository: Repository<UserEntity>
   ) {}
 
-
   /**
    * XXX - Find by email has the particularity that it explicitly selects the password property,
    * which is never selected by default. This is why findByEmail should be user for authentication

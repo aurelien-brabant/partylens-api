@@ -1,8 +1,9 @@
-import {Body, Controller, Delete, Get, Param, Patch, Post, UseGuards} from "@nestjs/common";
+import {Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, UseGuards} from "@nestjs/common";
 import {ApiBearerAuth, ApiConflictResponse, ApiNotFoundResponse, ApiTags, ApiUnauthorizedResponse} from "@nestjs/swagger";
 import {JwtAuthGuard} from "src/auth/guard/jwt-auth.guard";
 import {ServiceException} from "src/misc/serviceexception";
 import {CreateInviteGroupDto} from "../dto/create-invitegroup.dto";
+import {UpdateInviteGroupDto} from "../dto/update-invitegroup.dto";
 import {InviteGroupEntity} from "../entity/invitegroup.entity";
 import {InviteGroupsService} from "../service/invitegroups.service";
 
@@ -71,11 +72,17 @@ export class InviteGroupsController {
    */
 
   @Get('/:inviteId')
-  findOne(
+  async findOne(
     @Param('inviteId') inviteId: number
   )
   {
-    return this.inviteGroupsService.findOne(inviteId);
+    const igrp = await this.inviteGroupsService.findById(inviteId);
+
+    if (!igrp) {
+      new NotFoundException(`Could not found an invite group with id ${inviteId} for that user`);
+    }
+
+    return igrp;
   }
 
   /**
@@ -86,20 +93,36 @@ export class InviteGroupsController {
    * it.
    */
 
-  @Patch(':/inviteId')
-  updateOne(
-    @Param('inviteId') inviteId: number
+  @Patch('/:inviteId')
+  async updateOne(
+    @Param('userId') userId: number,
+    @Param('inviteId') inviteId: number,
+    @Body() attrs: UpdateInviteGroupDto,
   )
   {
-    return null;
+    try {
+      return await this.inviteGroupsService.updateOne(inviteId, userId, attrs.label, attrs.userIds);
+    } catch(error) {
+      if (error instanceof ServiceException) {
+        error.throwAsHttpException();
+      }
+      console.error(error);
+    }
   }
 
-  @Delete(':/inviteId')
-  removeOne(
+  @Delete('/:inviteId')
+  async removeOne(
     @Param('inviteId') inviteId: number
   )
   {
-    return null;
+    try {
+      return await this.inviteGroupsService.removeOne(inviteId);
+    } catch(error) {
+      if (error instanceof ServiceException) {
+        error.throwAsHttpException();
+      }
+      console.error(error);
+    }
   }
 
 }

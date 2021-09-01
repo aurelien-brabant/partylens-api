@@ -2,6 +2,7 @@ import {HttpStatus, Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {ServiceException} from "src/misc/serviceexception";
 import {Repository} from "typeorm";
+import {UpdateInviteGroupDto} from "../dto/update-invitegroup.dto";
 import {InviteGroupEntity} from "../entity/invitegroup.entity";
 import {UserEntity} from "../entity/user.entity";
 import {UsersService} from "./users.service";
@@ -25,7 +26,7 @@ export class InviteGroupsService {
     });
   }
 
-  findOne(gid: number): Promise<InviteGroupEntity>
+  findById(gid: number): Promise<InviteGroupEntity>
   {
     return this.inviteGroupRepo.findOne(gid, {
       relations: [ 'users' ]
@@ -43,7 +44,11 @@ export class InviteGroupsService {
    * @return - the newly created invite group.
    */
 
-  async create(ownerId: number, label: string, uids: number[]): Promise<InviteGroupEntity>
+  async create(
+    ownerId: number,
+    label: string,
+    uids: number[]
+  ): Promise<InviteGroupEntity>
   {
     const owner = await this.usersService.findById(ownerId);
 
@@ -69,7 +74,6 @@ export class InviteGroupsService {
         throw new ServiceException(`Can't add user to its own invite group.`, HttpStatus.CONFLICT);
     }
 
-    /* ensure that every id refers to a valid UserEntity */
     for (const uid of uidSet) {
       if (!await this.usersService.findById(uid)) {
         throw new ServiceException(`User with id ${uid} could not be found`, HttpStatus.NOT_FOUND);
@@ -102,5 +106,57 @@ export class InviteGroupsService {
     await this.usersRepository.save(owner);
 
     return igrp;
+  }
+
+  async updateOne(
+    gid: number,
+    ownerId: number,
+    label?: string, 
+    uids?: number[]
+  ): Promise<InviteGroupEntity>
+  {
+    const igrp = await this.findById(gid);
+
+    if (!igrp) {
+      throw new ServiceException('Could not found an invite group with that id for that user', HttpStatus.NOT_FOUND);
+    }
+
+    if (label) {
+      igrp.label = label;
+    }
+
+    if (uids) {
+      const uidSet = new Set(uids); 
+
+      // TODO: implement that check when request is validated instead, by creating a custom decorator.
+      if (uidSet.size < 2) {
+        throw new ServiceException('Less than 2 dinstinct ids provided.', HttpStatus.BAD_REQUEST);
+      }
+
+      if (uidSet.has(ownerId)) {
+          throw new ServiceException(`Can't add user to its own invite group.`, HttpStatus.CONFLICT);
+      }
+      /* retrieve each user, checking for possiblity that the user does not exist, the awaits the promise array. */
+      igrp.users = await Promise.all(Array.from(uidSet).map( async uid => {
+        const user = await this.usersService.findById(uid)
+        if (!user) {
+          throw new ServiceException(`User with id ${uid} could not be found`, HttpStatus.NOT_FOUND);
+        }
+        return user;
+      }));
+    }
+
+    return this.inviteGroupRepo.save(igrp);
+  }
+  
+  async removeOne(gid: number): Promise<InviteGroupEntity>
+  {
+    const igrp = await this.findById(gid);
+
+    if (!igrp) {
+      throw new ServiceException('Could not found an invite group with that id for that user', HttpStatus.NOT_FOUND);
+    }
+
+    return this.inviteGroupRepo.remove(igrp);
   }
 }
