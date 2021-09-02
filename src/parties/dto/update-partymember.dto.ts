@@ -1,6 +1,6 @@
-import {ApiPropertyOptional, PartialType} from "@nestjs/swagger";
+import {PartialType} from "@nestjs/swagger";
 import {IsEnum, IsOptional} from "class-validator";
-import {PartymemberState, PartyUserRole} from "../entity/partymember.entity";
+import {PartymemberState} from "../entity/partymember.entity";
 import {CreatePartymemberDto} from "./create-partymember.dto";
 
 export class UpdatePartymemberDto extends PartialType(CreatePartymemberDto)  {
