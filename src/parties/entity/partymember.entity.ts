@@ -2,14 +2,11 @@ import {UserEntity} from "src/users/entity/user.entity";
 import {Column, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
 import {PartyEntity} from "./party.entity";
 
-/* XXX: the below enum may be represented by a boolean instead, but it has been done
- * with potential scaling in mind: maybe more roles will be added later
+/**
+ * Maximum number of permisions is technically 64, as javascript
+ * numbers are always 64 bits floating point numbers.
+ * In case this list grows too big a proper bitset representation may be needed.
  */
-
-export enum PartyUserRole {
-  DEFAULT = 'DEFAULT',
-  ADMIN = 'ADMIN',
-}
 
 export enum MPBit {
   NONE = 0,
@@ -22,6 +19,10 @@ export enum MPBit {
   ITEM_INCREMENT = 1 << 6,
   ITEM_DELETE = 1 << 7,
   ITEM_EDIT = 1 << 8,
+  LOCATION_VIEW = 1 << 9,
+  LOCATION_EDIT = 1 << 10,
+  MEMBER_GROUP_INVITE = 1 << 11,
+  PARTY_NAME_EDIT = 1 << 12,
 }
 
 export enum PartymemberState {
