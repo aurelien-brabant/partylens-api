@@ -12,7 +12,7 @@ import {PartyitemsService} from '../service/partyitems.service';
 import {PartymembersService} from '../service/partymembers.service';
 
 @ApiBearerAuth()
-@ApiTags('Party management')
+@ApiTags('Party Item Management')
 @UseGuards(JwtAuthGuard, PartyExistsGuard)
 @Controller('/parties/:partyId/items')
 export class PartyitemsController {

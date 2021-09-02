@@ -36,10 +36,14 @@ export class PartymemberEntity
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => UserEntity)
+  @ManyToOne(() => UserEntity, {
+    onDelete: 'CASCADE'
+  })
   user: UserEntity;
 
-  @ManyToOne(() => PartyEntity, party => party.members)
+  @ManyToOne(() => PartyEntity, party => party.members, {
+    onDelete: 'CASCADE'
+  })
   party: PartyEntity;
 
   @Column({
@@ -48,16 +52,6 @@ export class PartymemberEntity
     default: PartymemberState.INVITATION_PENDING
   })
   state: PartymemberState
-
-  @Column({
-    default: false
-  })
-  canUseChat: boolean;
-
-  @Column({
-    default: false
-  })
-  canEditItems: boolean;
 
   /**
    * A number holding a collection of bits, each one being associated with a single permission.

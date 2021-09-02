@@ -10,7 +10,7 @@ import {MemberPermissionGuard} from '../guard/memberpermission.guard';
 import {PartyExistsGuard} from '../guard/party-exists.guard';
 import {PartymembersService} from '../service/partymembers.service';
 
-@ApiTags('Party management')
+@ApiTags('Party Member Management')
 @ApiBearerAuth()
 @Controller('/parties/:partyId/members')
 @UseGuards(JwtAuthGuard, PartyExistsGuard)

@@ -21,9 +21,11 @@ export class PartyEntity {
   })
   creationDate: string;
 
-  @ManyToOne(() => UserEntity)
+  @ManyToOne(() => UserEntity, {
+    onDelete: 'CASCADE'
+  })
   owner: UserEntity;
 
-  @OneToMany(() => PartymemberEntity, member => member.party,)
+  @OneToMany(() => PartymemberEntity, member => member.party)
   members: PartymemberEntity[];
 }
