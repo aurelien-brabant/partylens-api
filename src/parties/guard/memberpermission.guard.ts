@@ -1,4 +1,5 @@
 import {CanActivate, ExecutionContext, Injectable, mixin, NotFoundException, UnauthorizedException} from "@nestjs/common";
+import {hasPermissions} from "partylens-permissions";
 import {PartymembersService} from "../service/partymembers.service";
 
 export const MemberPermissionGuard = (permissionBits: number): any => {
@@ -19,7 +20,7 @@ export const MemberPermissionGuard = (permissionBits: number): any => {
         throw new NotFoundException('Unexpected permission guard error: member not found');
       }
 
-      return this.partymembersService.hasPermission(req.userAsPartyMember, permissionBits);
+      return hasPermissions(req.userAsPartyMember.permissionBits, permissionBits);
     }
   }
 

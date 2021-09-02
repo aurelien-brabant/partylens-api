@@ -6,7 +6,7 @@ import {Repository} from 'typeorm';
 import {CreatePartyDto} from '../dto/create-party.dto';
 import {UpdatePartyDto} from '../dto/update-party.dto';
 import {PartyEntity} from '../entity/party.entity';
-import {MPBit} from '../entity/partymember.entity';
+import { hasPermissions, MPBit } from 'partylens-permissions';
 import {PartymembersService} from './partymembers.service';
 
 @Injectable()
@@ -195,14 +195,14 @@ export class PartiesService {
       || attrs.latlong !== undefined
       || attrs.name !== undefined
       || attrs.description !== undefined
-    ) && !this.partymembersService.hasPermission(member, MPBit.METADATA_EDIT) ) {
+    ) && !hasPermissions(member.permissionBits, MPBit.METADATA_EDIT) ) {
       throw new ServiceException(`Permission denied: can't edit party's metadata`);
     }
 
     if (attrs.members !== undefined) {
 
       /* Editing the member list through the /parties/:id endpoint is used for group invite thus requires a specific permission */
-      if (!this.partymembersService.hasPermission(member, MPBit.MEMBER_GROUP_INVITE)) {
+      if (!hasPermissions(member.permissionBits, MPBit.MEMBER_GROUP_INVITE)) {
         throw new ServiceException(`Permission denied: can't invite a group of users to the party.`);
       }
 

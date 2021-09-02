@@ -3,12 +3,10 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {CreatePartyItemParticipationDto} from "../dto/create-party-item-participation.dto";
 import {PartyItemParticipationEntity} from "../entity/partyitemparticipation.entity";
-import {PartymembersService} from "./partymembers.service";
 
 @Injectable()
 export class PartyitemparticipationsService {
   constructor(
-    private readonly partymembersService: PartymembersService,
     @InjectRepository(PartyItemParticipationEntity)
     private readonly participationRepo: Repository<PartyItemParticipationEntity>
   ) {}

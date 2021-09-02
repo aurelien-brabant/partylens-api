@@ -2,27 +2,6 @@ import {UserEntity} from "src/users/entity/user.entity";
 import {Column, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
 import {PartyEntity} from "./party.entity";
 
-/**
- * Maximum number of permisions is technically 64, as javascript
- * numbers are always 64 bits floating point numbers.
- * In case this list grows too big a proper bitset representation may be needed.
- */
-
-export enum MPBit {
-  NONE = 0,
-  MEMBER_INVITE = 1 << 0,
-  MEMBER_KICK = 1 << 1,
-  CHAT_WR = 1 << 2,
-  CHAT_RD = 1 << 3,
-  GRANT_PRIVILEGES = 1 << 4,
-  ITEM_CREATE = 1 << 5,
-  ITEM_INCREMENT = 1 << 6,
-  ITEM_DELETE = 1 << 7,
-  ITEM_EDIT = 1 << 8,
-  MEMBER_GROUP_INVITE = 1 << 9,
-  METADATA_EDIT = 1 << 10 /* name, description, location, locationAka */
-}
-
 export enum PartymemberState {
   INVITATION_PENDING = 'PENDING',
   IN = 'IN',

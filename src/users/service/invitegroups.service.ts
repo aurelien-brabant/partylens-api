@@ -2,7 +2,6 @@ import {HttpStatus, Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {ServiceException} from "src/misc/serviceexception";
 import {Repository} from "typeorm";
-import {UpdateInviteGroupDto} from "../dto/update-invitegroup.dto";
 import {InviteGroupEntity} from "../entity/invitegroup.entity";
 import {UserEntity} from "../entity/user.entity";
 import {UsersService} from "./users.service";

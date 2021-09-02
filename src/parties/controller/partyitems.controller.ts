@@ -5,7 +5,7 @@ import {JwtAuthGuard} from 'src/auth/guard/jwt-auth.guard';
 import {ServiceException} from 'src/misc/serviceexception';
 import {CreatePartyItemDto} from '../dto/create-partyitem.dto';
 import {UpdatePartyItemDto} from '../dto/update-partyitem.dto';
-import {MPBit} from '../entity/partymember.entity';
+import { MPBit } from 'partylens-permissions';
 import {MemberPermissionGuard} from '../guard/memberpermission.guard';
 import {PartyExistsGuard} from '../guard/party-exists.guard';
 import {PartyitemsService} from '../service/partyitems.service';

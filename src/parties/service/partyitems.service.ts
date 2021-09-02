@@ -1,13 +1,11 @@
-import { ConflictException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {ServiceException} from 'src/misc/serviceexception';
 import {Repository} from 'typeorm';
 import {CreatePartyItemDto} from '../dto/create-partyitem.dto';
 import {UpdatePartyItemDto} from '../dto/update-partyitem.dto';
 import {PartyItemEntity} from '../entity/partyitem.entity';
-import {PartyItemParticipationEntity} from '../entity/partyitemparticipation.entity';
 import {PartyitemparticipationsService} from './partyitemparticipations.service';
-import {PartymembersService} from './partymembers.service';
 
 @Injectable()
 export class PartyitemsService {
