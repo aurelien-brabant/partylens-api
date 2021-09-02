@@ -6,6 +6,7 @@ import {Repository} from 'typeorm';
 import {CreatePartyDto} from '../dto/create-party.dto';
 import {UpdatePartyDto} from '../dto/update-party.dto';
 import {PartyEntity} from '../entity/party.entity';
+import {MPBit} from '../entity/partymember.entity';
 import {PartymembersService} from './partymembers.service';
 
 @Injectable()
@@ -184,10 +185,31 @@ export class PartiesService {
       throw new ServiceException(`Could not found party with id ${partyId} for that user.`, HttpStatus.NOT_FOUND);
     } 
 
-    if (attrs.members) {
+    const member = await this.partymembersService.findUserById(ownerId, partyId);
+
+    if (!member) {
+      throw new ServiceException(`Member with id ${ownerId} could not be found for that party.`);
+    }
+
+    if ((attrs.locationAka !== undefined
+      || attrs.latlong !== undefined
+      || attrs.name !== undefined
+      || attrs.description !== undefined
+    ) && !this.partymembersService.hasPermission(member, MPBit.METADATA_EDIT) ) {
+      throw new ServiceException(`Permission denied: can't edit party's metadata`);
+    }
+
+    if (attrs.members !== undefined) {
+
+      /* Editing the member list through the /parties/:id endpoint is used for group invite thus requires a specific permission */
+      if (!this.partymembersService.hasPermission(member, MPBit.MEMBER_GROUP_INVITE)) {
+        throw new ServiceException(`Permission denied: can't invite a group of users to the party.`);
+      }
+
       for (const member of attrs.members) {
         party.members.push(await this.partymembersService.create(partyId, member));
       }
+
       delete attrs.members;
     }
 

@@ -19,10 +19,8 @@ export enum MPBit {
   ITEM_INCREMENT = 1 << 6,
   ITEM_DELETE = 1 << 7,
   ITEM_EDIT = 1 << 8,
-  LOCATION_VIEW = 1 << 9,
-  LOCATION_EDIT = 1 << 10,
-  MEMBER_GROUP_INVITE = 1 << 11,
-  PARTY_NAME_EDIT = 1 << 12,
+  MEMBER_GROUP_INVITE = 1 << 9,
+  METADATA_EDIT = 1 << 10 /* name, description, location, locationAka */
 }
 
 export enum PartymemberState {

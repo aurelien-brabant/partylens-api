@@ -29,7 +29,6 @@ export class PartyEntity {
   @OneToMany(() => PartymemberEntity, member => member.party)
   members: PartymemberEntity[];
 
-
   @Column({
     nullable: true
   })
