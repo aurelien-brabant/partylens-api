@@ -74,7 +74,7 @@ export class InviteGroupsService {
   async create(
     ownerId: number,
     label: string,
-    uids: number[]
+    nametags: string[]
   ): Promise<InviteGroupEntity>
   {
     const owner = await this.usersService.findById(ownerId);
@@ -90,35 +90,35 @@ export class InviteGroupsService {
       throw new ServiceException(`Invite group user limit reached (${this.MAX_GROUP_COUNT}/${this.MAX_GROUP_COUNT})`, HttpStatus.UNAUTHORIZED);
     }
 
-    const uidSet = new Set(uids);
+    const nametagSet = new Set(nametags);
 
     // TODO: implement that check when request is validated instead, by creating a custom decorator.
-    if (uidSet.size < 2) {
+    if (nametagSet.size < 2) {
       throw new ServiceException('Less than 2 dinstinct ids provided.', HttpStatus.BAD_REQUEST);
     }
 
-    if (uidSet.has(ownerId)) {
+    if (nametagSet.has(`${owner.name}#${owner.tag}`)) {
         throw new ServiceException(`Can't add user to its own invite group.`, HttpStatus.CONFLICT);
     }
 
-    for (const uid of uidSet) {
-      if (!await this.usersService.findById(uid)) {
-        throw new ServiceException(`User with id ${uid} could not be found`, HttpStatus.NOT_FOUND);
+    // resolves the nametag array to an array of UserEntity
+    const users = await Promise.all(Array.from(nametagSet).map(async nametag => {
+      const user = await this.usersService.findByNametag(nametag);
+      // This check may already have been handled by the validation pipe.
+      if (!user) {
+        throw new ServiceException(`User ${nametag} could not be found`, HttpStatus.NOT_FOUND);
       }
-    }
+      return user;
+    }));
+
 
     let igrp = this.inviteGroupRepo.create({
       label: label,
       owner: {
         id: ownerId
       },
+      users
     });
-
-    /**
-     * Only way I found to intialize the array from identifiers only.
-     * See: https://github.com/typeorm/typeorm/issues/447
-     */
-    igrp.users = Array.from(uidSet).map(uid => ({ id: uid })) as any;
 
     try {
       igrp = await this.inviteGroupRepo.save(igrp);
@@ -139,9 +139,15 @@ export class InviteGroupsService {
     gid: number,
     ownerId: number,
     label?: string, 
-    uids?: number[]
+    nametags?: string[]
   ): Promise<InviteGroupEntity>
   {
+    const owner = await this.usersService.findById(ownerId);
+
+    if (!owner) {
+      throw new ServiceException(`Could not find owner of the invite group, identified by id(${ownerId})`, HttpStatus.NOT_FOUND);
+    }
+
     const igrp = await this.findById(ownerId, gid);
 
     if (!igrp) {
@@ -152,20 +158,20 @@ export class InviteGroupsService {
       igrp.label = label;
     }
 
-    if (uids) {
-      const uidSet = new Set(uids); 
+    if (nametags) {
+      const nametagSet = new Set(nametags); 
 
       // TODO: implement that check when request is validated instead, by creating a custom decorator.
-      if (uidSet.size < 2) {
+      if (nametagSet.size < 2) {
         throw new ServiceException('Less than 2 dinstinct ids provided.', HttpStatus.BAD_REQUEST);
       }
 
-      if (uidSet.has(ownerId)) {
+      if (nametagSet.has(`${owner.name}#${owner.tag}`)) {
           throw new ServiceException(`Can't add user to its own invite group.`, HttpStatus.CONFLICT);
       }
-      /* retrieve each user, checking for possiblity that the user does not exist, the awaits the promise array. */
-      igrp.users = await Promise.all(Array.from(uidSet).map( async uid => {
-        const user = await this.usersService.findById(uid)
+
+      igrp.users = await Promise.all(Array.from(nametagSet).map( async uid => {
+        const user = await this.usersService.findByNametag(uid);
         if (!user) {
           throw new ServiceException(`User with id ${uid} could not be found`, HttpStatus.NOT_FOUND);
         }
@@ -181,7 +187,8 @@ export class InviteGroupsService {
     const igrp = await this.findById(ownerId, gid);
 
     if (!igrp) {
-      throw new ServiceException('Could not found an invite group with that id for that user', HttpStatus.NOT_FOUND);
+      throw new ServiceException(`Could not found an invite group identified by id(${gid}) for that user`,
+       HttpStatus.NOT_FOUND);
     }
 
     return this.inviteGroupRepo.remove(igrp);

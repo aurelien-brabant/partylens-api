@@ -60,7 +60,7 @@ export class InviteGroupsController {
   ): Promise<InviteGroupEntity>
   {
     try {
-      return await this.inviteGroupsService.create(userId, igrpData.label, igrpData.userIds);
+      return await this.inviteGroupsService.create(userId, igrpData.label, igrpData.userNametags);
     } catch (error) {
       console.log(error);
       if (error instanceof ServiceException) {
@@ -104,7 +104,7 @@ export class InviteGroupsController {
   )
   {
     try {
-      return await this.inviteGroupsService.updateOne(inviteId, userId, attrs.label, attrs.userIds);
+      return await this.inviteGroupsService.updateOne(inviteId, userId, attrs.label, attrs.userNametags);
     } catch(error) {
       if (error instanceof ServiceException) {
         error.throwAsHttpException();

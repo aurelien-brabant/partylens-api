@@ -6,5 +6,10 @@
  */
 
 export const isNametag = (nametag: string): boolean => {
-    return /^[a-z][a-z0-9_]{3,15}#[0-9]{4}$/i.test(nametag);
+    if ( /^[a-z][a-z0-9_]{3,15}#[0-9]{4}$/i.test(nametag)) {
+        console.log(nametag);
+        console.log(true);
+        return true;
+    }
+    return false;
 }

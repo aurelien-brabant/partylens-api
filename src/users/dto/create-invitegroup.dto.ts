@@ -1,4 +1,4 @@
-import {ArrayMaxSize, ArrayMinSize, IsArray, IsNumber, IsString, Max, MaxLength, Min, MinLength} from "class-validator";
+import {ArrayMaxSize, ArrayMinSize, IsArray, IsNumber, IsString, Matches, Max, MaxLength, Min, MinLength, ValidateNested} from "class-validator";
 
 export class CreateInviteGroupDto {
   /**
@@ -9,11 +9,15 @@ export class CreateInviteGroupDto {
    *
    * At least 2 distinct ids must be provided, and at most 20.
    */
+  
+  @IsArray()
+  @Matches(/^[a-z][a-z0-9_]{2,14}#[0-9]{4}$/i, {
+    each: true
+  })
 
-  @IsNumber({}, { each: true })
   @ArrayMaxSize(20)
   @ArrayMinSize(2)
-  userIds: number[];
+  userNametags: string[];
 
   /**
    * The name of the invite group, which must be UNIQUE at the user level.
