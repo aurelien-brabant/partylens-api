@@ -16,14 +16,15 @@ export class UsersService {
   ) {}
 
   /**
-   * XXX - Find by email has the particularity that it explicitly selects the password property,
-   * which is never selected by default. This is why findByEmail should be user for authentication
-   * purposes.
+   * XXX - Find by email has the particularity that it explicitly selects the password and email properties,
+   * which are never selected by default.
+   * This is why findByEmail should be user for authentication purposes.
    */
   findByEmail(email: string): Promise<UserEntity> {
     return this.usersRepository.createQueryBuilder('user')
       .where("user.email = :email", { email })
       .addSelect('user.password')
+      .addSelect('user.email')
       .getOne();
   }
       
@@ -33,7 +34,8 @@ export class UsersService {
     });
   }
 
-  findAll(): Promise<UserEntity[]> {
+  findAll(): Promise<UserEntity[]>
+  {
     return this.usersRepository.find({
       relations: ['invitegroups']
     });

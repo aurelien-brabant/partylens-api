@@ -1,5 +1,7 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {BadRequestException} from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import {ApiConflictResponse, ApiCreatedResponse, ApiTags} from '@nestjs/swagger';
+import {QueryFilterManager} from 'src/misc/filter';
 import {CreateUserDto} from '../dto/create-user.dto';
 import {UserExistsGuard} from '../guard/user-exists.guard';
 import {UsersService} from '../service/users.service';
@@ -12,16 +14,16 @@ export class UsersController {
   ) {
   }
 
+  /**
+    Find all users.
+   */
+
   @Get()
-  findAll() {
+  findAll(
+  ) {
     return this.usersService.findAll();
   }
   
-  @Post()
-  @ApiCreatedResponse({
-    description: 'Record successfuly created.',
-    type: CreateUserDto
-  })
   @ApiConflictResponse({
     description: 'User with the same email address already exists.'
   })
