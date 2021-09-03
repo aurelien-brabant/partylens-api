@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { PartiesModule } from './parties/parties.module';
 import { AuthModule } from './auth/auth.module';
 import { SeedersModule } from './seeders/seeders.module';
+import { ValidatorsModule } from './validators/validations.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { SeedersModule } from './seeders/seeders.module';
     PartiesModule,
     AuthModule,
     SeedersModule,
+    ValidatorsModule
   ],
   controllers: [AppController],
   providers: [AppService],

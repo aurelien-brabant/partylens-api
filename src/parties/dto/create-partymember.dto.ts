@@ -1,13 +1,17 @@
-import {IsBoolean, IsEnum, IsNumber, IsOptional} from "class-validator";
-import {IsNametag} from "src/validator/IsNameTag";
+import {IsNumber, IsOptional} from "class-validator";
+import { IsValidNametag } from "src/validators/services/isValidNametag";
 
 export class CreatePartymemberDto {
   /**
-   * The nametag refering to the added user.
+   * The nametag that refers to the user which is added to the party.
    */
-  @IsNametag()
+  @IsValidNametag()
   nametag: string;
 
+  /**
+   * The set of permissions the party member has, encoded on 32 bits.
+   * @see partylens-permissions package for how to make use of permissions.
+   */
   @IsOptional()
   @IsNumber()
   permissionBits?: number;

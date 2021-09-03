@@ -1,6 +1,7 @@
 import {ValidationPipe} from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
+import { useContainer } from 'class-validator';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -28,6 +29,10 @@ async function bootstrap() {
     transform: true,
   }))
 
+  // required to tell class-validator to make use of NestJS DI system
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
+
   await app.listen(process.env.NESTJS_PORT);
 }
+
 bootstrap();

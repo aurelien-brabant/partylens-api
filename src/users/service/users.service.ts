@@ -101,7 +101,7 @@ export class UsersService {
     .andWhere('user.tag = :tag', { tag })
     .getOne();
   }
-      
+
   findById(id: number): Promise<UserEntity> {
     return this.usersRepository.findOne(id, {
       relations: ['invitegroups']
