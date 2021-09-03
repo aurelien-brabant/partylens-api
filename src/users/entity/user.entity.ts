@@ -52,4 +52,9 @@ export class UserEntity {
   })
   @JoinTable()
   invitedgroups: InviteGroupEntity[];
+
+  @Column({
+    default: '0000'
+  })
+  tag: string;
 }

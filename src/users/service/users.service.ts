@@ -1,5 +1,6 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, HttpStatus, Injectable } from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
+import {ServiceException} from 'src/misc/serviceexception';
 import {Repository} from 'typeorm';
 import {CreateUserDto} from '../dto/create-user.dto';
 import {UserEntity, UserState} from '../entity/user.entity';
@@ -16,6 +17,56 @@ export class UsersService {
   ) {}
 
   /**
+   * @description Randomly generates a single tag.
+   */
+
+  genTag(): string
+  {
+    let tag = '';
+
+    for (let i = 0; i != 4; ++i) {
+      tag += Math.round(Math.random() * 9);
+    }
+
+    return tag;
+  }
+
+  /**
+   * @description generate a UNIQUE user tag based on its username.
+   * 
+   * @param {string} the user's name field, which is used to decide uniqueness of the tag.
+   *
+   * @return {string} a promise that resolves to the tag, encoded in a string in the following format:
+   * "XXXX" where each 'X' is a digit between 0 and 9.
+   */
+
+  async genUniqueUserTag(username: string): Promise<string>
+  {
+    /* Get all tags from user that have the same name than the one passed as an argument. */
+
+    const existingTags = (await this.usersRepository.createQueryBuilder('user')
+    .select([ 'user.tag' ])
+    .where('user.name = :name', { name: username })
+    .getMany())
+    .map(({ tag }) => tag);
+
+    /* There are too many users that are named the same, tag generation is thus impossible */
+    if (existingTags.length === 9999) {
+      throw new ServiceException(`Name ${username} is unavailable.`, HttpStatus.CONFLICT);
+    }
+
+    let tag: string;
+
+    /* Generate a new random tag using this.genTag until the tag is unique */
+
+    do {
+      tag = this.genTag();
+    } while (existingTags.includes(tag));
+
+    return tag;
+  }
+
+  /**
    * XXX - Find by email has the particularity that it explicitly selects the password and email properties,
    * which are never selected by default.
    * This is why findByEmail should be user for authentication purposes.
@@ -26,6 +77,28 @@ export class UsersService {
       .addSelect('user.password')
       .addSelect('user.email')
       .getOne();
+  }
+
+  /**
+   * @description Find a specific user given its name and tag, forming a unique identifier.
+   * User must be activated.
+   *
+   * @param {string} the name field of the user.
+   * @param {string} the tag field of the user.
+   *
+   * NOTE: no validation is done for `name` and `tag`. The caller of this function must implement it
+   * by himself if he wants some. Anyway, a malformed name or tag, as they are strings, will only result
+   * in a Not Found error. There's no security risk associated with that.
+   */
+
+  findByNameAndTag(name: string, tag: string): Promise<UserEntity>
+  {
+    return this.usersRepository.createQueryBuilder('user')
+    .select([ 'user.name', 'user.tag', 'user.id' ])
+    //.where('user.state = :userState', { userState: UserState.ACTIVATED })
+    .where('user.name = :name', { name })
+    .andWhere('user.tag = :tag', { tag })
+    .getOne();
   }
       
   findById(id: number): Promise<UserEntity> {
