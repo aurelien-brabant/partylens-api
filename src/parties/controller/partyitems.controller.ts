@@ -1,15 +1,14 @@
 import {Delete, HttpException} from '@nestjs/common';
-import { Body, ConflictException, Controller, Get, NotFoundException, Param, Patch, Post, Request, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Param, Patch, Post, Request, UnauthorizedException, UseGuards } from '@nestjs/common';
 import {ApiBearerAuth, ApiConflictResponse, ApiNotFoundResponse, ApiTags, ApiUnauthorizedResponse} from '@nestjs/swagger';
 import {JwtAuthGuard} from 'src/auth/guard/jwt-auth.guard';
 import {ServiceException} from 'src/misc/serviceexception';
 import {CreatePartyItemDto} from '../dto/create-partyitem.dto';
 import {UpdatePartyItemDto} from '../dto/update-partyitem.dto';
-import { MPBit } from 'partylens-permissions';
+import { hasPermissions, MPBit } from 'partylens-permissions';
 import {MemberPermissionGuard} from '../guard/memberpermission.guard';
 import {PartyExistsGuard} from '../guard/party-exists.guard';
 import {PartyitemsService} from '../service/partyitems.service';
-import {PartymembersService} from '../service/partymembers.service';
 
 @ApiBearerAuth()
 @ApiTags('Party Item Management')
@@ -18,7 +17,6 @@ import {PartymembersService} from '../service/partymembers.service';
 export class PartyitemsController {
   constructor(
     private readonly partyitemsService: PartyitemsService,
-    private readonly partymembersService: PartymembersService,
   ) {}
 
   /**
@@ -120,7 +118,7 @@ export class PartyitemsController {
     }
 
     if (item.owner.id !== req.user.id &&
-      !this.partymembersService.hasPermission(item.owner, MPBit.ITEM_EDIT)) {
+      !hasPermissions(item.owner.permissionBits, MPBit.ITEM_EDIT)) {
       throw new UnauthorizedException('Could not update: permission denied.');
     }
 
@@ -156,7 +154,7 @@ export class PartyitemsController {
     }
 
     if (item.owner.id !== req.user.id &&
-      !this.partymembersService.hasPermission(item.owner, MPBit.ITEM_DELETE)) {
+      !hasPermissions(item.owner.permissionBits, MPBit.ITEM_DELETE)) {
       throw new UnauthorizedException('Could not update: permission denied.');
     }
 

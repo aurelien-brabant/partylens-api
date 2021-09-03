@@ -5,12 +5,11 @@ import {CreatePartyItemParticipationDto} from "../dto/create-party-item-particip
 import {PartyItemEntity} from "../entity/partyitem.entity";
 import {PartyItemParticipationEntity} from "../entity/partyitemparticipation.entity";
 import {PartymemberEntity} from "../entity/partymember.entity";
-import { MPBit } from "partylens-permissions";
+import { hasPermissions, MPBit } from "partylens-permissions";
 import {MemberPermissionGuard} from "../guard/memberpermission.guard";
 import {PartyExistsGuard} from "../guard/party-exists.guard";
 import {PartyItemExistsGuard} from "../guard/partyitem-exists.guard";
 import {PartyitemparticipationsService} from "../service/partyitemparticipations.service";
-import {PartymembersService} from "../service/partymembers.service";
 
 @ApiBearerAuth()
 @ApiTags('Party Item Participation Management')
@@ -20,7 +19,6 @@ export class PartyitemparticipationsController {
 
   constructor(
     private readonly participationsService: PartyitemparticipationsService,
-    private readonly partymembersService: PartymembersService
   ) {};
 
   /**
@@ -82,7 +80,7 @@ export class PartyitemparticipationsController {
     const item: PartyItemEntity = req.partyItem;
 
     if (member.id !== item.owner.id
-      && !this.partymembersService.hasPermission(member, MPBit.ITEM_INCREMENT)) {
+      && hasPermissions(member.permissionBits, MPBit.ITEM_INCREMENT)) {
       throw new UnauthorizedException('Could not create new participation: permission denied.');
     }
 

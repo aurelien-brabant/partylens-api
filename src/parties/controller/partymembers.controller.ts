@@ -6,7 +6,7 @@ import {UsersService} from 'src/users/service/users.service';
 import {CreatePartymemberDto} from '../dto/create-partymember.dto';
 import {UpdatePartymemberDto} from '../dto/update-partymember.dto';
 import {PartymemberState} from '../entity/partymember.entity';
-import { MPBit } from 'partylens-permissions';
+import { hasPermissions, MPBit } from 'partylens-permissions';
 import {MemberPermissionGuard} from '../guard/memberpermission.guard';
 import {PartyExistsGuard} from '../guard/party-exists.guard';
 import {PartymembersService} from '../service/partymembers.service';
@@ -154,7 +154,7 @@ export class PartymembersController {
     const loggedInMember = await this.partymembersService.findUserById(req.user.id, partyId);
 
     if (attrs.permissionBits !== undefined 
-         && !this.partymembersService.hasPermission(loggedInMember, MPBit.GRANT_PRIVILEGES)) {
+         && !hasPermissions(loggedInMember.permissionBits, MPBit.GRANT_PRIVILEGES)) {
           throw new UnauthorizedException('Could not update member privileges: permission denied');
     }
     
