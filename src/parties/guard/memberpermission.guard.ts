@@ -14,7 +14,7 @@ export const MemberPermissionGuard = (permissionBits: number): any => {
       const req = context.switchToHttp().getRequest();
       const { user, party } = req;
 
-      req.userAsPartyMember = await this.partymembersService.findUserById(user.id, party.id);
+      req.userAsPartyMember = await this.partymembersService.findMemberFromUser(user.id, party.id);
 
       if (!req.userAsPartyMember) {
         throw new NotFoundException('Unexpected permission guard error: member not found');

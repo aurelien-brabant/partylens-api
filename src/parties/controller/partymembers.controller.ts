@@ -1,15 +1,15 @@
-import {BadRequestException, ConflictException, UnauthorizedException} from '@nestjs/common';
+import {BadRequestException, UnauthorizedException} from '@nestjs/common';
 import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Request, UseGuards } from '@nestjs/common';
 import {ApiBadRequestResponse, ApiBearerAuth, ApiConflictResponse, ApiNotFoundResponse, ApiTags, ApiUnauthorizedResponse} from '@nestjs/swagger';
 import {JwtAuthGuard} from 'src/auth/guard/jwt-auth.guard';
-import {UsersService} from 'src/users/service/users.service';
 import {CreatePartymemberDto} from '../dto/create-partymember.dto';
 import {UpdatePartymemberDto} from '../dto/update-partymember.dto';
 import {PartymemberState} from '../entity/partymember.entity';
-import { hasPermissions, MPBit } from 'partylens-permissions';
+import { MPBit } from 'partylens-permissions';
 import {MemberPermissionGuard} from '../guard/memberpermission.guard';
 import {PartyExistsGuard} from '../guard/party-exists.guard';
 import {PartymembersService} from '../service/partymembers.service';
+import { ServiceException } from 'src/misc/serviceexception';
 
 @ApiTags('Party Member Management')
 @ApiBearerAuth()
@@ -18,7 +18,6 @@ import {PartymembersService} from '../service/partymembers.service';
 export class PartymembersController {
   constructor(
     private readonly partymembersService: PartymembersService,
-    private readonly usersService: UsersService
   ) {};
 
   @Get('/')
@@ -51,15 +50,21 @@ export class PartymembersController {
   /**
    * # Permission guard: `MEMBER_INVITE`
    * Add a new user to the given party, creating a new **party member**.
-   * Therefore, a `UserEntity` and a `PartymemberEntity` are two different objects, even if they are still closely related.
+   *
+   * Every party member should refer to a valid `UserEntity`. In this case, it must be provided
+   * by passing a `nametag` property in the request's body. The nametag is then resolved to a user, ensuring
+   * that it indeed refers to a valid user.
+   *
+   * Permission bits of the created member can be set if the user that adds the member
+   * has the `GRANT_PRIVILEGES` permission.
    */
 
   @ApiNotFoundResponse({
-    description: 'No UserEntity corresponding to the passed id.'
+    description: 'Nametag does not refer to a valid user.'
   })
 
   @ApiConflictResponse({
-    description: 'User is already in the party.'
+    description: 'There is already a member that refers to the provided nametag in this party.'
   })
 
   @ApiUnauthorizedResponse({
@@ -69,27 +74,24 @@ export class PartymembersController {
   @UseGuards(MemberPermissionGuard(MPBit.MEMBER_INVITE))
   @Post('/')
   async create(
+    @Request() req: any,
     @Param('partyId') partyId: number,
     @Body() partymemberData: CreatePartymemberDto,
   ) 
   {
-    const user = await this.usersService.findById(partymemberData.id);
-
-    if (!user) {
-      throw new NotFoundException(`Could not create party member: user with id #${partymemberData.id} does not exist`);
+    try {
+      return await this.partymembersService.create(req.user.id, partyId, partymemberData);
+    } catch(error) {
+      if (error instanceof ServiceException) {
+        error.throwAsHttpException();
+      }
     }
-
-    const member = await this.partymembersService.findUserById(partymemberData.id, partyId);
-  
-    /* ensure user is not already a member of the party */
-    if (member) {
-      throw new ConflictException(`Could not add member: user with id #${partymemberData.id} is already in the party.`);
-    }
-
-    return this.partymembersService.create(partyId, partymemberData);
   }
 
   /**
+   * # OMG FIX ME I AM BROKEN RIGHT NOW
+   * ## NO REALLY DON'T ATTEMPT TO USE ME
+   *
    * Update a party member given its `id`.
    *
    * # Changing member state:
@@ -151,12 +153,13 @@ export class PartymembersController {
       }
     }
 
-    const loggedInMember = await this.partymembersService.findUserById(req.user.id, partyId);
+    //const loggedInMember = await this.partymembersService.findUserById(req.user.id, partyId);
 
+    /*
     if (attrs.permissionBits !== undefined 
          && !hasPermissions(loggedInMember.permissionBits, MPBit.GRANT_PRIVILEGES)) {
           throw new UnauthorizedException('Could not update member privileges: permission denied');
-    }
+    }*/
     
     return this.partymembersService.patch(partyId, memberId, attrs)
   }

@@ -83,16 +83,17 @@ export class UsersService {
    * @description Find a specific user given its name and tag, forming a unique identifier.
    * User must be activated.
    *
-   * @param {string} the name field of the user.
-   * @param {string} the tag field of the user.
+   * @param {string} the nametag. @see isNametag.
    *
    * NOTE: no validation is done for `name` and `tag`. The caller of this function must implement it
    * by himself if he wants some. Anyway, a malformed name or tag, as they are strings, will only result
    * in a Not Found error. There's no security risk associated with that.
    */
 
-  findByNameAndTag(name: string, tag: string): Promise<UserEntity>
+  findByNametag(nametag: string): Promise<UserEntity>
   {
+    const [name, tag] = nametag.split('#');
+
     return this.usersRepository.createQueryBuilder('user')
     .select([ 'user.name', 'user.tag', 'user.id' ])
     //.where('user.state = :userState', { userState: UserState.ACTIVATED })

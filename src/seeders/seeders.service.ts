@@ -79,7 +79,7 @@ export class SeedersService {
             for (let i = 0; i < memberCount && usersCopy.length > 0; ++i) {
                 let currentIndex = Math.round(Math.random() * (usersCopy.length - 1));
                 members.push({
-                    id: usersCopy[currentIndex].id
+                    nametag: `${usersCopy[currentIndex].name}#${usersCopy[currentIndex].tag}`,
                 })
                 usersCopy.slice(currentIndex, 1);
             }

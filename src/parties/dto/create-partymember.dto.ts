@@ -1,25 +1,12 @@
 import {IsBoolean, IsEnum, IsNumber, IsOptional} from "class-validator";
+import {IsNametag} from "src/validator/IsNameTag";
 
 export class CreatePartymemberDto {
   /**
-   * Determines whether or not the member will be able to add new item proposals and bring items to the party.`
+   * The nametag refering to the added user.
    */
-  @IsNumber()
-  id: number;
-
-  /**
-   * Determines whether or not the member will be able to add new item proposals and bring items to the party.`
-   */
-  @IsBoolean()
-  @IsOptional()
-  canEditItems?: boolean;
-
-  /**
-   * Determines if the member will be able to send messages to the party's chat. Reading the chat is always permitted.
-   */
-  @IsBoolean()
-  @IsOptional()
-  canUseChat?: boolean;
+  @IsNametag()
+  nametag: string;
 
   @IsOptional()
   @IsNumber()

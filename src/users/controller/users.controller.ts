@@ -1,6 +1,6 @@
-import {BadRequestException, NotFoundException, Param} from '@nestjs/common';
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
-import {ApiConflictResponse, ApiCreatedResponse, ApiTags} from '@nestjs/swagger';
+import {NotFoundException} from '@nestjs/common';
+import { Body, Controller, Get, Query, UseGuards } from '@nestjs/common';
+import {ApiConflictResponse, ApiTags} from '@nestjs/swagger';
 import {CreateUserDto} from '../dto/create-user.dto';
 import {UserExistsGuard} from '../guard/user-exists.guard';
 import {UsersService} from '../service/users.service';
@@ -35,7 +35,7 @@ export class UsersController {
     @Query('name') name: string,
     @Query('tag') tag: string,
   ) {
-    const user = await this.usersService.findByNameAndTag(name, tag);
+    const user = await this.usersService.findByNametag(name + tag);
 
     if (!user) {
       throw new NotFoundException(`${name}#${tag} does not refer to a valid user`);
@@ -46,15 +46,7 @@ export class UsersController {
 
   @UseGuards(UserExistsGuard)
   @Get('/:userId')
-  async getUser(
-    @Param('userId') userId: number
-  ) {
-    const user = await this.usersService.findById(userId);
-
-    if (!user) {
-      new NotFoundException();
-    }
-
-    return user;
+  getUser() {
+    return 'exists';
   }
 }

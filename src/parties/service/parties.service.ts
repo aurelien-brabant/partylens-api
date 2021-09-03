@@ -1,4 +1,4 @@
-import {HttpStatus} from '@nestjs/common';
+import {forwardRef, HttpStatus, Inject} from '@nestjs/common';
 import {Injectable} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {ServiceException} from 'src/misc/serviceexception';
@@ -8,14 +8,19 @@ import {UpdatePartyDto} from '../dto/update-party.dto';
 import {PartyEntity} from '../entity/party.entity';
 import { hasPermissions, MPBit } from 'partylens-permissions';
 import {PartymembersService} from './partymembers.service';
+import {UsersService} from 'src/users/service/users.service';
 
 @Injectable()
 export class PartiesService {
   constructor(
     @InjectRepository(PartyEntity)
     private readonly partiesRepository: Repository<PartyEntity>,
-    private readonly partymembersService: PartymembersService
+    @Inject(forwardRef(() => PartymembersService))
+    private readonly partymembersService: PartymembersService,
+    private readonly usersService: UsersService
   ) {}
+
+
 
   /**
    * TODO: what this function does should probably be achieved using the right
@@ -97,6 +102,35 @@ export class PartiesService {
   }
 
   /**
+   * Finds a particular party by id, while veryfing that the given user is involved into it.
+   * The verification is done by providing the user's nametag, which is then resolved to an actual
+   * `UserEntity`.
+   *
+   * @param {string} the nametag of the user that is (supposedly) involved into the party `partyId` refers to.
+   * @param {number} the standard database identifier of the party.
+   *
+   * @return {PartyEntity} the `PartyEntity`, or null if not found.
+   */
+
+  async findUserPartyByNametag(
+    userNametag: string,
+    partyId: number
+  ): Promise<PartyEntity>
+  {
+    const party = await this.partiesRepository.findOne(partyId, {
+      relations: ['members', 'members.user', 'owner'],
+    });
+
+    if (!party) return null;
+
+    const user = await this.usersService.findByNametag(userNametag);
+
+    if (!user) return null;
+
+    return this.isUserInvolvedInParty(party, user.id) ? party : null;
+  }
+
+  /**
    * @description Fetches all the parties the specified user is involved into.
    *
    * @param number the id of the user.
@@ -133,6 +167,12 @@ export class PartiesService {
     partyData: CreatePartyDto
   ): Promise<PartyEntity>
   { 
+    const owner = await this.usersService.findById(ownerId);
+
+    if (!owner) {
+      throw new ServiceException(`Owner of the party identified by id(${ownerId}) could not be found.`);
+    }
+
     const { members, ...remainingData } = partyData;
 
     let party = this.partiesRepository.create({
@@ -144,17 +184,16 @@ export class PartiesService {
     /* save for a first time to get the id of the new entry */
     party = await this.partiesRepository.save(party);
 
-    /* create member representation for owner, giving all party permissions to him */
-    party.members.push(await this.partymembersService.create(party.id, {
-        id: ownerId,
-        permissionBits: ~0, /* set all the bits to true for immutable owner */
+    party.members.push(await this.partymembersService.create(ownerId, party.id, {
+        nametag: `${owner.name}#${owner.tag}`,
+        permissionBits: ~0,
       })
     );
 
     /* append to the member list (that contains only the owner at this point) all the specified members, if any */
     if (members) {
       for (const member of members) {
-        party.members.push(await this.partymembersService.create(party.id, member));
+        party.members.push(await this.partymembersService.create(ownerId, party.id, member));
       }
     }
 
@@ -185,7 +224,7 @@ export class PartiesService {
       throw new ServiceException(`Could not found party with id ${partyId} for that user.`, HttpStatus.NOT_FOUND);
     } 
 
-    const member = await this.partymembersService.findUserById(ownerId, partyId);
+    const member = await this.partymembersService.findMemberFromUser(ownerId, partyId);
 
     if (!member) {
       throw new ServiceException(`Member with id ${ownerId} could not be found for that party.`);
@@ -201,13 +240,12 @@ export class PartiesService {
 
     if (attrs.members !== undefined) {
 
-      /* Editing the member list through the /parties/:id endpoint is used for group invite thus requires a specific permission */
       if (!hasPermissions(member.permissionBits, MPBit.MEMBER_GROUP_INVITE)) {
         throw new ServiceException(`Permission denied: can't invite a group of users to the party.`);
       }
 
       for (const member of attrs.members) {
-        party.members.push(await this.partymembersService.create(partyId, member));
+        party.members.push(await this.partymembersService.create(ownerId, partyId, member));
       }
 
       delete attrs.members;
