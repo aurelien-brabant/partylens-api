@@ -1,0 +1,11 @@
+{
+  "name": "partylens-permissions",
+  "version": "1.0.0",
+  "description": "Package that helps validating/editing Partylens's permission sets",
+  "main": "src/cjs/index.js",
+  "module": "src/esm/index.js",
+  "repository": "git@github.com:ReroInc/partylens-permissions.git",
+  "author": "abrabant",
+  "license": "MIT",
+  "dependencies": {}
+}

@@ -13,4 +13,6 @@ COPY		. .
 
 RUN			yarn install
 
+RUN			cp -r ./partylens-permissions ./node_modules
+
 ENTRYPOINT	[ "yarn", "start" ]
