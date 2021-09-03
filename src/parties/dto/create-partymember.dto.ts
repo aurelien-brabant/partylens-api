@@ -1,11 +1,7 @@
-import {IsNumber, IsOptional} from "class-validator";
-import { IsValidNametag } from "src/validators/services/isValidNametag";
+import {IsNumber, IsOptional, Matches} from "class-validator";
 
 export class CreatePartymemberDto {
-  /**
-   * The nametag that refers to the user which is added to the party.
-   */
-  @IsValidNametag()
+  @Matches(/$[a-z][a-z0-9_]{1,13}[a-z0-9]#[0-9]{4}^/i)
   nametag: string;
 
   /**

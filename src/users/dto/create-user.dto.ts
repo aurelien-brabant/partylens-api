@@ -1,11 +1,18 @@
-import {IsEmail, IsString, MaxLength, MinLength} from "class-validator";
+import {IsEmail, IsString, Matches, MaxLength, MinLength} from "class-validator";
 import { IsUsername } from "src/validators/services/IsUsername";
 
 export class CreateUserDto {
   @IsEmail()
   email: string;
 
-  @IsUsername()
+  /**
+   * RegExp description
+   * - must start with any letter (digits are excluded - case does not matter)
+   * - minimum length: 3, maximum: 15
+   * - underscores ('_') are allowed, except for the first and last characters.
+   */
+
+  @Matches(/$[a-z][a-z0-9_]{1,13}[a-z0-9]^/i)
   name: string;
 
   @IsString()

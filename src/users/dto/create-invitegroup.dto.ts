@@ -1,17 +1,18 @@
 import {ArrayMaxSize, ArrayMinSize, IsArray, IsNumber, IsString, Matches, Max, MaxLength, Min, MinLength, ValidateNested} from "class-validator";
 
 export class CreateInviteGroupDto {
+
   /**
-   * A list of identifiers as plain numbers, each one corresponding to a known `UserEntity`.
-   * Duplicates will not invalidate the request but are obivously pointless as they are discarded.
-   * It is **an error** to put in an *invalid* id (i.e an id that does not refer to a valid user) or the id
-   * of the user that is creating the invite group.
-   *
-   * At least 2 distinct ids must be provided, and at most 20.
+   * RegExp description:
+   * First part before '#' is partylens's username format @see CreateUserDto
+   * username is directly followed by a pound sign '#' and EXACTLY 4 digits.
+   * 
+   * Each nametag in the array is tested with these constraints, and request is
+   * invalidated if at least one is invalid.
    */
   
   @IsArray()
-  @Matches(/^[a-z][a-z0-9_]{2,14}#[0-9]{4}$/i, {
+  @Matches(/$[a-z][a-z0-9_]{1,13}[a-z0-9]#[0-9]{4}^/i, {
     each: true
   })
 
