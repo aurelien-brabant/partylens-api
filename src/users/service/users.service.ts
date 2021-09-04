@@ -115,7 +115,7 @@ export class UsersService {
     });
   }
 
-  async create(userData: CreateUserDto): Promise<UserEntity> {
+  async create(userData: CreateUserDto): Promise<Partial<UserEntity>> {
     const hashedPwd = await bcrypt.hash(userData.password, this.saltRounds)
     const tag = await this.genUniqueUserTag(userData.name);
 
@@ -131,11 +131,13 @@ export class UsersService {
       newUser = await this.usersRepository.save(newUser);
     } catch(error) {
       if (error?.code === '23505') {
-        throw new ServiceException('A user with the same address email already exists');
+        throw new ServiceException('A user with the same address email already exists', HttpStatus.CONFLICT);
       }
     }
 
-    return newUser; 
+    const { password, email, ...retData } = newUser;
+
+    return retData; 
   }
 
   async update(id: number, attrs: Partial<UserEntity>): Promise<UserEntity> {

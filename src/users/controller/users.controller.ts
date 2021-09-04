@@ -1,6 +1,7 @@
-import {NotFoundException} from '@nestjs/common';
+import {NotFoundException, Post} from '@nestjs/common';
 import { Body, Controller, Get, Query, UseGuards } from '@nestjs/common';
 import {ApiConflictResponse, ApiTags} from '@nestjs/swagger';
+import { ServiceException } from '../../misc/serviceexception';
 import {CreateUserDto} from '../dto/create-user.dto';
 import {UserExistsGuard} from '../guard/user-exists.guard';
 import {UsersService} from '../service/users.service';
@@ -42,6 +43,21 @@ export class UsersController {
     }
 
     return user;
+  }
+
+  @Post('/')
+  async createUser(
+    @Body() userData: CreateUserDto
+  )
+  {
+    try {
+      return await this.usersService.create(userData);
+    } catch(error) {
+      if (error instanceof ServiceException) {
+        error.throwAsHttpException();
+      }
+      console.error(error);
+    }
   }
 
   @UseGuards(UserExistsGuard)

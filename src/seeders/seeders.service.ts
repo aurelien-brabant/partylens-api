@@ -2,9 +2,9 @@ import { Injectable, NotImplementedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getConnection, Repository } from 'typeorm';
 
-//import faker from 'faker';
+import faker from 'faker';
 
-const faker = require('faker');
+//const faker = require('faker');
 
 import {CreatePartymemberDto} from 'src/parties/dto/create-partymember.dto';
 import { CreatePartyDto } from '../parties/dto/create-party.dto';
@@ -99,10 +99,12 @@ export class SeedersService {
     {
         const dtos: CreateUserDto[] = [];
 
+        let name = faker.internet.userName();
+
         for (let i = 0; i != n; ++i) {
             dtos.push({
                 email: faker.unique(faker.internet.email),
-                name: faker.name.findName(),
+                name,
                 password: faker.internet.password()
             });
         }
