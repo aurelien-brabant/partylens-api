@@ -18,12 +18,25 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DATABASE=${POSTGRES_DATABASE}
       - POSTGRES_HOST=postgres
+      - POSTGRES_TESTING_HOST=postgres-testing
       - NODE_ENV=${NODE_ENV}
       - JWT_SECRET=${JWT_SECRET}
     depends_on:
       - postgres
 
   postgres:
+    container_name: backend-postgres
+    image: postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER} 
+      - POSTGRES_DB=${POSTGRES_DATABASE}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-persistence:/var/lib/postgresql/data
+
+  # Used for e2e tests
+
+  postgres-testing:
     container_name: backend-postgres
     image: postgres
     environment:
