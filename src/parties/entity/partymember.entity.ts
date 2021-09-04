@@ -1,5 +1,5 @@
-import {UserEntity} from "src/users/entity/user.entity";
 import {Column, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
+import { UserEntity } from "../../users/entity/user.entity";
 import {PartyEntity} from "./party.entity";
 
 export enum PartymemberState {

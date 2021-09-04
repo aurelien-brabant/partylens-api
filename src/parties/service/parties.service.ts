@@ -1,14 +1,14 @@
 import {forwardRef, HttpStatus, Inject} from '@nestjs/common';
 import {Injectable} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
-import {ServiceException} from 'src/misc/serviceexception';
 import {Repository} from 'typeorm';
 import {CreatePartyDto} from '../dto/create-party.dto';
 import {UpdatePartyDto} from '../dto/update-party.dto';
 import {PartyEntity} from '../entity/party.entity';
 import { hasPermissions, MPBit } from 'partylens-permissions';
 import {PartymembersService} from './partymembers.service';
-import {UsersService} from 'src/users/service/users.service';
+import { UsersService } from '../../users/service/users.service';
+import { ServiceException } from '../../misc/serviceexception';
 
 @Injectable()
 export class PartiesService {

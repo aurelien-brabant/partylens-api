@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { registerDecorator, ValidationArguments, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface } from "class-validator";
-import { UsersService } from "src/users/service/users.service";
+import { UsersService } from "../../users/service/users.service";
 import { isNametag } from "../lib/isNametag";
 
 @ValidatorConstraint({ async: true })

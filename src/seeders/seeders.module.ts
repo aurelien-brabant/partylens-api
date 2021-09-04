@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import {PartyEntity} from 'src/parties/entity/party.entity';
-import { PartiesModule } from 'src/parties/parties.module';
-import { UserEntity } from 'src/users/entity/user.entity';
-import { UsersModule } from 'src/users/users.module';
+import { PartyEntity } from '../parties/entity/party.entity';
+import { PartiesModule } from '../parties/parties.module';
+import { UserEntity } from '../users/entity/user.entity';
+import { UsersModule } from '../users/users.module';
 import { SeedersService } from './seeders.service';
 
 @Module({

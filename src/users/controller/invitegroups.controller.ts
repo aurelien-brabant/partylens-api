@@ -1,7 +1,7 @@
 import {Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, UseGuards} from "@nestjs/common";
 import {ApiBearerAuth, ApiConflictResponse, ApiNotFoundResponse, ApiTags, ApiUnauthorizedResponse} from "@nestjs/swagger";
-import {JwtAuthGuard} from "src/auth/guard/jwt-auth.guard";
-import {ServiceException} from "src/misc/serviceexception";
+import { JwtAuthGuard } from "../../auth/guard/jwt-auth.guard";
+import { ServiceException } from "../../misc/serviceexception";
 import {CreateInviteGroupDto} from "../dto/create-invitegroup.dto";
 import {UpdateInviteGroupDto} from "../dto/update-invitegroup.dto";
 import {InviteGroupEntity} from "../entity/invitegroup.entity";

@@ -1,7 +1,6 @@
 import {BadRequestException, UnauthorizedException} from '@nestjs/common';
 import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Request, UseGuards } from '@nestjs/common';
 import {ApiBadRequestResponse, ApiBearerAuth, ApiConflictResponse, ApiNotFoundResponse, ApiTags, ApiUnauthorizedResponse} from '@nestjs/swagger';
-import {JwtAuthGuard} from 'src/auth/guard/jwt-auth.guard';
 import {CreatePartymemberDto} from '../dto/create-partymember.dto';
 import {UpdatePartymemberDto} from '../dto/update-partymember.dto';
 import {PartymemberState} from '../entity/partymember.entity';
@@ -9,7 +8,8 @@ import { MPBit } from 'partylens-permissions';
 import {MemberPermissionGuard} from '../guard/memberpermission.guard';
 import {PartyExistsGuard} from '../guard/party-exists.guard';
 import {PartymembersService} from '../service/partymembers.service';
-import { ServiceException } from 'src/misc/serviceexception';
+import { JwtAuthGuard } from '../../auth/guard/jwt-auth.guard';
+import { ServiceException } from '../../misc/serviceexception';
 
 @ApiTags('Party Member Management')
 @ApiBearerAuth()

@@ -5,8 +5,9 @@ version: '3.3'
 
 services:
   
-  server:
-    container_name: backend-api
+  # docker-compose up -d server-frontend
+  server-frontend:
+    container_name: backend-api-frontend
     build:
       context: .
       dockerfile: Dockerfile.frontend
@@ -24,19 +25,30 @@ services:
     depends_on:
       - postgres
 
-  postgres:
-    container_name: backend-postgres
-    image: postgres
+  server-dev:
+    container_name: backend-api-dev
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - ${NESTJS_PORT}:${NESTJS_PORT} 
     environment:
+      - NESTJS_PORT=${NESTJS_PORT}
       - POSTGRES_USER=${POSTGRES_USER} 
-      - POSTGRES_DB=${POSTGRES_DATABASE}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_TESTING_HOST=postgres-testing
+      - NODE_ENV=${NODE_ENV}
+      - JWT_SECRET=${JWT_SECRET}
     volumes:
-      - postgres-persistence:/var/lib/postgresql/data
+      - ./:/usr/app
+    depends_on:
+      - postgres
+      - postgres-testing
+      - adminer
 
-  # Used for e2e tests
-
-  postgres-testing:
+  postgres:
     container_name: backend-postgres
     image: postgres
     environment:
@@ -51,6 +63,17 @@ services:
     image: adminer
     ports:
       - 8080:8080
+
+  # Used for e2e tests
+
+  postgres-testing:
+    container_name: backend-postgres-testing
+    image: postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER} 
+      - POSTGRES_DB=${POSTGRES_DATABASE}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
 
 # mongodb data should persist, unless the associated docker volume is deleted.
 # Such volume deletion is to be expected in development mode.

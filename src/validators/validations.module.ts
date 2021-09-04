@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
-import { UsersModule } from "src/users/users.module";
-import { IsValidNametag, IsValidNametagValidator } from "./services/isValidNametag";
+import { UsersModule } from "../users/users.module";
+import {  IsValidNametagValidator } from "./services/isValidNametag";
 
 @Module({
     imports: [

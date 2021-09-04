@@ -1,15 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {CreatePartyDto} from 'src/parties/dto/create-party.dto';
-import { PartiesService } from 'src/parties/service/parties.service';
-import { UserEntity, UserRolePrivilege, UserState } from 'src/users/entity/user.entity';
-import { UsersService } from 'src/users/service/users.service';
 import { getConnection, Repository } from 'typeorm';
 
-//import faker from 'faker/';
+//import faker from 'faker';
+
 const faker = require('faker');
 
 import {CreatePartymemberDto} from 'src/parties/dto/create-partymember.dto';
+import { CreatePartyDto } from '../parties/dto/create-party.dto';
+import { PartiesService } from '../parties/service/parties.service';
+import { UsersService } from '../users/service/users.service';
+import { UserEntity, UserRolePrivilege, UserState } from '../users/entity/user.entity';
+import { CreateUserDto } from '../users/dto/create-user.dto';
+import { ArrayNotContains } from 'class-validator';
 
 @Injectable()
 export class SeedersService {
@@ -90,5 +93,20 @@ export class SeedersService {
             console.log("Party >> %s (%d members)", partyData.name, memberCount + 1);
         }
 
+    }
+
+    generateUserDtos(n: number): CreateUserDto[]
+    {
+        const dtos: CreateUserDto[] = [];
+
+        for (let i = 0; i != n; ++i) {
+            dtos.push({
+                email: faker.unique(faker.internet.email),
+                name: faker.name.findName(),
+                password: faker.internet.password()
+            });
+        }
+        
+        return dtos;
     }
 }

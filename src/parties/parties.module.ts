@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import {TypeOrmModule} from '@nestjs/typeorm';
-import {UsersModule} from 'src/users/users.module';
 
 import {PartyEntity} from './entity/party.entity';
 import {PartymemberEntity} from './entity/partymember.entity';
@@ -16,6 +15,7 @@ import {PartyitemsController} from './controller/partyitems.controller';
 import { PartyitemsService } from './service/partyitems.service';
 import {PartyitemparticipationsController} from './controller/partyitemparticipations.controller';
 import {PartyitemparticipationsService} from './service/partyitemparticipations.service';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [

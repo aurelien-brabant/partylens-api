@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards, Request, Query, NotFoundException } from '@nestjs/common';
 import {ApiBearerAuth, ApiNotFoundResponse, ApiTags} from '@nestjs/swagger';
-import {JwtAuthGuard} from 'src/auth/guard/jwt-auth.guard';
-import {ServiceException} from 'src/misc/serviceexception';
+import { JwtAuthGuard } from '../../auth/guard/jwt-auth.guard';
+import { ServiceException } from '../../misc/serviceexception';
 import {CreatePartyDto} from '../dto/create-party.dto';
 import {UpdatePartyDto} from '../dto/update-party.dto';
 import {PartyEntity} from '../entity/party.entity';

@@ -1,9 +1,9 @@
 import { forwardRef, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {hasPermissions, MPBit} from 'partylens-permissions';
-import {ServiceException} from 'src/misc/serviceexception';
-import {UsersService} from 'src/users/service/users.service';
 import { Repository } from 'typeorm';
+import { ServiceException } from '../../misc/serviceexception';
+import { UsersService } from '../../users/service/users.service';
 import { CreatePartymemberDto } from '../dto/create-partymember.dto';
 import { UpdatePartymemberDto } from '../dto/update-partymember.dto';
 import { PartymemberEntity } from '../entity/partymember.entity';

@@ -1,6 +1,5 @@
 import {Body, Controller, Delete, Get, NotFoundException, Param, Post, Request, UnauthorizedException, UseGuards} from "@nestjs/common";
 import {ApiBearerAuth, ApiTags} from "@nestjs/swagger";
-import {JwtAuthGuard} from "src/auth/guard/jwt-auth.guard";
 import {CreatePartyItemParticipationDto} from "../dto/create-party-item-participation.dto";
 import {PartyItemEntity} from "../entity/partyitem.entity";
 import {PartyItemParticipationEntity} from "../entity/partyitemparticipation.entity";
@@ -10,6 +9,7 @@ import {MemberPermissionGuard} from "../guard/memberpermission.guard";
 import {PartyExistsGuard} from "../guard/party-exists.guard";
 import {PartyItemExistsGuard} from "../guard/partyitem-exists.guard";
 import {PartyitemparticipationsService} from "../service/partyitemparticipations.service";
+import { JwtAuthGuard } from "../../auth/guard/jwt-auth.guard";
 
 @ApiBearerAuth()
 @ApiTags('Party Item Participation Management')

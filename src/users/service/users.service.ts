@@ -1,9 +1,9 @@
 import { ConflictException, HttpStatus, Injectable } from '@nestjs/common';
-import {InjectRepository} from '@nestjs/typeorm';
-import {ServiceException} from 'src/misc/serviceexception';
-import {Repository} from 'typeorm';
-import {CreateUserDto} from '../dto/create-user.dto';
-import {UserEntity, UserState} from '../entity/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { ServiceException } from '../../misc/serviceexception';
+import { CreateUserDto } from '../dto/create-user.dto';
+import { UserEntity, UserState } from '../entity/user.entity';
 
 const bcrypt = require('bcrypt');
 
@@ -116,24 +116,24 @@ export class UsersService {
   }
 
   async create(userData: CreateUserDto): Promise<UserEntity> {
-    userData.password = await bcrypt.hash(userData.password, this.saltRounds);
+    const hashedPwd = await bcrypt.hash(userData.password, this.saltRounds)
+    const tag = await this.genUniqueUserTag(userData.name);
 
     let newUser = this.usersRepository.create({
       ... userData,
       state: UserState.PENDING_CONFIRMATION,
-      invitegroups: []
+      invitegroups: [],
+      password: hashedPwd,
+      tag
     });
 
     try {
-      newUser = await this.usersRepository.save(userData);
+      newUser = await this.usersRepository.save(newUser);
     } catch(error) {
       if (error?.code === '23505') {
-        throw new ConflictException('A user with the same address email already exists');
+        throw new ServiceException('A user with the same address email already exists');
       }
     }
-
-    delete newUser.password;
-    delete newUser.state;
 
     return newUser; 
   }
