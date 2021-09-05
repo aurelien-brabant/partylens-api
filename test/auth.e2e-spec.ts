@@ -3,7 +3,7 @@ import { Test } from "@nestjs/testing";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { doesNotMatch } from "assert";
 import { isJWT } from "class-validator";
-import { assert } from "console";
+import { assert, exception } from "console";
 import exp from "constants";
 import * as request from 'supertest';
 import { getConnection, Repository, UsingJoinColumnOnlyOnOneSideAllowedError } from "typeorm";
@@ -71,45 +71,46 @@ describe('Authentication', () => {
     })
 
     // Body validation is handled by Passport, not class-validator. Thus no extensive validation checking is really required.
-    it('Authorization should be refused: body is empty', () => {
-        return request(app.getHttpServer())
+    it('Authorization should be refused: body is empty', async () => {
+        const res = await request(app.getHttpServer())
             .post('/auth/login')
             .set('Accept', 'application/json')
-            .expect(HttpStatus.UNAUTHORIZED)
+            .send();
+        
+        expect(res.status).toEqual(HttpStatus.UNAUTHORIZED);
     })
 
     // Select one of the user randomly to make connection attempt
     it('Login should be successful, valid credentials are provided', async () => {
         const { email, password } = users[Math.round(Math.random() * (users.length - 1))];
 
-        return request(app.getHttpServer())
+        const res = await request(app.getHttpServer())
             .post('/auth/login')
+            .set('Accept', 'application/json')
             .send({
                 email,
                 password
-            })
-            .set('Accept', 'application/json')
-            .expect(201)
-            .then(res => {
-                assert(res.body.access_token !== undefined && isJWT(res.body.access_token));
-            })
+            });
+
+        expect(res.status).toEqual(HttpStatus.CREATED);
+        expect(res.body.access_token).toBeDefined();
+        expect(isJWT(res.body.access_token)).toBeTruthy();
     });
 
     // select two random users from the array and try to login
     it('Should _NOT_ login with invalid password', async () => {
-        const indexes = generateRandomIndexes(2, users.length);
-        const { password } = users[indexes[0]];        
-        const { email } = users[indexes[1]];        
-
-        const res = await request(app.getHttpServer())
+        const basereq = request(app.getHttpServer())
         .post('/auth/login')
-        .set('Accept', 'application/json')
-        .send({
-            email,
-            password
-        });
+        .set('Accept', 'application/json');
 
-        expect(res.status).toBe(HttpStatus.UNAUTHORIZED);
+        for (let i = 1; i < users.length; ++i) {
+            const res = await basereq.send({
+                email: users[0].email,
+                password: users[i].password
+            });
+            
+            expect(res.status).toEqual(HttpStatus.UNAUTHORIZED);
+        }
     })
     
 })
