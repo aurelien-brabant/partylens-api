@@ -43,7 +43,6 @@ describe('e', () => {
             .compile();
 
         app = moduleRef.createNestApplication();
-        await app.init();
 
         await getConnection().synchronize(true);
 
@@ -57,6 +56,8 @@ describe('e', () => {
         for (const user of users) {
             await usersService.create({ ...user });
         }
+
+        await app.init();
     })
 
     afterAll(async () => {
@@ -80,7 +81,6 @@ describe('e', () => {
         expect(res.status).toEqual(HttpStatus.CREATED);
 
         const createdUser = res.body as Partial<UserEntity>;
-        console.log(createdUser);
         expect(createdUser.name).toEqual(userDto.name);
 
         for (const excludedField of excludedFields) {
@@ -96,4 +96,96 @@ describe('e', () => {
 
         expect(res.status).toEqual(HttpStatus.CONFLICT);
     })
+
+    it('[POST /users] Should _NOT_ POST user: invalid username', async () => {
+        const invalidUsernames = [
+            '_darksasuke78', // starting with an underscore
+            '78darksasuke', // starting with a digit
+            'darksasukeandnarutolover', // too long
+            'Ri', // too short
+            'Ri Zitas' // contains space
+        ]
+
+        const basereq = request(app.getHttpServer())
+            .post('/users')
+            .set('Accept', 'application/json');
+        
+        for (const invalidUsername of invalidUsernames) {
+            const res = await basereq.send({
+                email: 'somevalidemail@gmail.com',
+                name: invalidUsername,
+                password: 'somecoolpassword'
+            });
+
+            expect(res.status).toEqual(HttpStatus.BAD_REQUEST);
+        }
+    })
+
+    /**
+     * Ensure that a given set of usernames is indeed valid.
+     */
+
+    it('[POST /users] Should POST user: valid usernames', async () => {
+        const validUsernames = [
+            'darksasuke78',
+            'dark_sasuke_78',
+            'D0Rk_SaSuKe',
+            'Rizitoz',
+            'i_l_O_v_e_u'
+        ];
+
+        const basereq = request(app.getHttpServer())
+            .post('/users')
+            .set('Accept', 'application/json');
+        
+        for (let i = 0; i != validUsernames.length; ++i) {
+            const res = await basereq.send({
+                email: `somevalidemail${i}@gmail.com`, // to avoid conflict use a number
+                name: validUsernames[i],
+                password: 'somecoolpassword'
+            });
+
+            expect(res.status).toEqual(HttpStatus.CREATED);
+        }
+    })
+
+    it('[POST /users] Should _NOT_ POST user: invalid email', async () => {
+        const res = await request(app.getHttpServer())
+        .post('/users')
+        .set('Accept', 'application/json')
+        .send({
+            email: 'testgmail.com',
+            name: 'test78' /* should not start with a digit */,
+            password: 'test78'
+        });
+
+        expect(res.status).toEqual(HttpStatus.BAD_REQUEST);
+    })
+
+    /**
+     * Ensure that the passed usernames are indeed NOT valid.
+     */
+
+    it('[POST /users] Should _NOT_ POST user: missing a required field', async () => {
+        const basereq = request(app.getHttpServer())
+        .post('/users')
+        .set('Accept', 'application/json');
+
+        const invalidDto = {
+            email: 'test@gmail.com',
+            name: 'test78',
+            password: 'test78'
+        }
+
+        // try each time with a different missing property
+        for (const key in invalidDto) {
+            const reqBody = { ...invalidDto };
+            delete reqBody[key];
+
+            const res = await basereq.send(reqBody);
+            expect(res.status).toEqual(HttpStatus.BAD_REQUEST);
+        }
+    })
+
+
 })
