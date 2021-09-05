@@ -50,7 +50,6 @@ describe('Authentication', () => {
             .compile();
 
         app = moduleRef.createNestApplication();
-        await app.init();
 
         await getConnection().synchronize(true);
 
@@ -64,6 +63,8 @@ describe('Authentication', () => {
         for (const user of users) {
             await usersService.create({ ... user });
         }
+
+        await app.init();
     })
 
     afterAll(async () => {

@@ -10,7 +10,7 @@ purge:
 
 dev:
 	git pull origin HEAD
-	$(COMPOSE) up -d api-dev
+	$(COMPOSE) up -d --build api-dev
 
 logs:
 	$(COMPOSE) logs
