@@ -5,13 +5,31 @@ import {isJWT} from 'class-validator';
 import * as request from 'supertest';
 import {getConnection} from 'typeorm';
 import {AuthModule} from '../src/auth/auth.module';
-import {AuthService} from '../src/auth/auth.service';
 import {CreateUserDto} from '../src/users/dto/create-user.dto';
 import {UsersService} from '../src/users/service/users.service';
+import {UsersModule} from '../src/users/users.module';
+import {PartiesModule} from '../src/parties/parties.module';
+import {PartiesService} from '../src/parties/service/parties.service';
 
 describe('e', () => {
     let app: INestApplication;
     let usersService: UsersService;
+    let partiesService: PartiesService;
+
+    const users = [
+        {
+            email: 'user@gmail.com',
+            name: 'user1',
+            password: 'user',
+            jwtToken: null
+        },
+        {
+            email: 'user2@gmail.com',
+            name: 'user2',
+            password: 'user2',
+            jwtToken: null
+        }
+    ];
 
     let jwtToken: string = null;
 
@@ -34,6 +52,8 @@ describe('e', () => {
                     synchronize: true,
                 }),
                 AuthModule,
+                UsersModule,
+                PartiesModule
             ]
         })
             .compile();
@@ -47,32 +67,53 @@ describe('e', () => {
             transform: true,
         }))
 
-        usersService = app.get(UsersService);
-
-        await usersService.create(loggedUserDto);
+        const basereq = request(app.getHttpServer())
+        .post('/auth/login')
+        .set('Accept', 'application/json');
 
         await app.init();
 
-        const res = await request(app.getHttpServer())
-        .post('/auth/login')
-        .set('Accept', 'application/json')
-        .send({
-            email: loggedUserDto.email,
-            password: loggedUserDto.password
-        });
+        usersService = app.get(UsersService);
+        partiesService = app.get(PartiesService);
 
-        expect(res.status).toEqual(HttpStatus.CREATED);
-        expect(res.body.access_token).toBeDefined();
-        expect(isJWT(res.body.access_token)).toBeTruthy();
+        for (const user of users) {
+            await usersService.create(user);
 
-        jwtToken = res.body.access_token;
+            const res = await basereq.send(user);
+            expect(res.status).toEqual(HttpStatus.CREATED);
+            expect(res.body.access_token).toBeDefined();
+            expect(isJWT(res.body.access_token)).toBeTruthy();
+            user.jwtToken = res.body.access_token;
+        }
+
     })
 
     afterAll(async () => {
         await app.close();
     })
 
-    it('dummy test', async () => {
-        expect(true).toBeTruthy();
+    it('[GET /parties] SHOULD return an array', async () => {
+        const res = await request(app.getHttpServer())
+        .get('/parties')
+        .set('Authorization', `Bearer ${users[0].jwtToken}`);
+
+        expect(res.status).toEqual(HttpStatus.OK);
+        expect(Array.isArray(res.body)).toBe(true);
     })
+    
+    // missing Bearer token
+    it('[GET /parties] SHOULD refuse authentication', async () => {
+        const res = await request(app.getHttpServer())
+        .get('/parties')
+
+        expect(res.status).toEqual(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('[GET /parties] SHOULD refuse authentication', async () => {
+        const res = await request(app.getHttpServer())
+        .get('/parties')
+
+        expect(res.status).toEqual(HttpStatus.UNAUTHORIZED);
+    });
+
 });
