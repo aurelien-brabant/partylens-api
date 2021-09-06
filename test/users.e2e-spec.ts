@@ -7,23 +7,18 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Test } from "@nestjs/testing";
 import { getConnection } from "typeorm";
 import { UserEntity } from "../src/users/entity/user.entity";
+import {SeedersService} from "../src/seeders/seeders.service";
+import {UsersModule} from "../src/users/users.module";
+import {SeedersModule} from "../src/seeders/seeders.module";
 
 describe('e', () => {
-    let users: CreateUserDto[] = [
-        {
-            email: 'user@gmail.com',
-            name: 'user',
-            password: 'pass'
-        },
-        {
-            email: 'otheruser@gmail.com',
-            name: 'otheruser',
-            password: 'otherpass',
-        },
-    ];
+    const BASE_USER_NB = 10;
+    const POST_USER_NB = 50;
 
+    let users = null; 
     let app: INestApplication;
     let usersService: UsersService;
+    let seedersService: SeedersService;
 
     beforeAll(async () => {
         const moduleRef = await Test.createTestingModule({
@@ -38,6 +33,8 @@ describe('e', () => {
                     synchronize: true,
                 }),
                 AuthModule,
+                SeedersModule,
+                UsersModule
             ]
         })
             .compile();
@@ -51,50 +48,53 @@ describe('e', () => {
             transform: true,
         }))
 
+        await app.init();
+
         usersService = app.get(UsersService);
+        seedersService = app.get(SeedersService);
+
+        users = seedersService.generateUserDtos(BASE_USER_NB);
 
         for (const user of users) {
             await usersService.create({ ...user });
         }
-
-        await app.init();
     })
 
     afterAll(async () => {
         await app.close();
     })
 
-    it('[ POST /users ] Should add a user to the database', async () => {
-        const userDto: CreateUserDto = {
-            name: 'added_user',
-            password: 'addeduserpass',
-            email: 'addeduser@gmail.com'
-        }
+    it(`[ POST /users ] Should add (${POST_USER_NB}) users to the database`, async () => {
+
+        const userDtos: CreateUserDto[] = seedersService.generateUserDtos(POST_USER_NB);
 
         const excludedFields = [ 'email', 'password' ];
 
-        const res = await request(app.getHttpServer())
-        .post('/users')
-        .set('Accept', 'application/json')
-        .send(userDto);
+        for (const userDto of userDtos) {
+            const res = await request(app.getHttpServer())
+            .post('/users')
+            .set('Accept', 'application/json')
+            .send(userDto);
 
-        expect(res.status).toEqual(HttpStatus.CREATED);
+            expect(res.status).toEqual(HttpStatus.CREATED);
+            const createdUser = res.body;
+            expect(createdUser.name).toEqual(userDto.name);
 
-        const createdUser = res.body as Partial<UserEntity>;
-        expect(createdUser.name).toEqual(userDto.name);
-
-        for (const excludedField of excludedFields) {
-            expect(createdUser[excludedField]).toBeUndefined() 
+            for (const excludedField of excludedFields) {
+                expect(createdUser[excludedField]).toBeUndefined() 
+            }
         }
     })
 
-    it('[POST /users] Should _NOT_ POST user: email already exists (conflict error)', async () => {
-        const res = await request(app.getHttpServer())
-        .post('/users')
-        .set('Accept', 'application/json')
-        .send(users[1]);
+    it(`[POST /users] Should _NOT_ POST (${BASE_USER_NB}) users: email already exists (conflict error)`, async () => {
+        for (const user of users) {
+            const res = await request(app.getHttpServer())
+            .post('/users')
+            .set('Accept', 'application/json')
+            .send(user);
 
-        expect(res.status).toEqual(HttpStatus.CONFLICT);
+            expect(res.status).toEqual(HttpStatus.CONFLICT);
+        }
     })
 
     it('[POST /users] Should _NOT_ POST user: invalid username', async () => {

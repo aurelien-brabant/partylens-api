@@ -12,7 +12,7 @@ export class CreateUserDto {
    * - underscores ('_') are allowed, except for the first and last characters.
    */
 
-  @Matches(/^[a-z]{1}[a-z0-9_]{1,13}[a-z0-9]$/i)
+  @Matches(/^[a-z]{1}[a-z0-9_]{1,13}[a-z0-9]{1}$/i)
   name: string;
 
   @IsString()

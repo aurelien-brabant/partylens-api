@@ -10,26 +10,17 @@ import {UsersService} from '../src/users/service/users.service';
 import {UsersModule} from '../src/users/users.module';
 import {PartiesModule} from '../src/parties/parties.module';
 import {PartiesService} from '../src/parties/service/parties.service';
+import {SeedersModule} from '../src/seeders/seeders.module';
+import {SeedersService} from '../src/seeders/seeders.service';
 
 describe('e', () => {
+    const USER_NB = 10;
+
     let app: INestApplication;
     let usersService: UsersService;
     let partiesService: PartiesService;
 
-    const users = [
-        {
-            email: 'user@gmail.com',
-            name: 'user1',
-            password: 'user',
-            jwtToken: null
-        },
-        {
-            email: 'user2@gmail.com',
-            name: 'user2',
-            password: 'user2',
-            jwtToken: null
-        }
-    ];
+    let users = null; 
 
     let jwtToken: string = null;
 
@@ -53,7 +44,8 @@ describe('e', () => {
                 }),
                 AuthModule,
                 UsersModule,
-                PartiesModule
+                PartiesModule,
+                SeedersModule
             ]
         })
             .compile();
@@ -75,6 +67,10 @@ describe('e', () => {
 
         usersService = app.get(UsersService);
         partiesService = app.get(PartiesService);
+        
+        const seeder = app.get(SeedersService);
+
+        users = seeder.generateUserDtos(USER_NB);
 
         for (const user of users) {
             await usersService.create(user);
@@ -85,7 +81,6 @@ describe('e', () => {
             expect(isJWT(res.body.access_token)).toBeTruthy();
             user.jwtToken = res.body.access_token;
         }
-
     })
 
     afterAll(async () => {
