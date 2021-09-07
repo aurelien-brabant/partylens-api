@@ -58,11 +58,11 @@ describe('e', () => {
         for (const user of users) {
             await usersService.create({ ...user });
         }
-    })
+    });
 
     afterAll(async () => {
         await app.close();
-    })
+    });
 
     it(`[ POST /users ] Should add (${POST_USER_NB}) users to the database`, async () => {
 
@@ -84,9 +84,10 @@ describe('e', () => {
                 expect(createdUser[excludedField]).toBeUndefined() 
             }
         }
-    })
+    });
 
     it(`[POST /users] Should _NOT_ POST (${BASE_USER_NB}) users: email already exists (conflict error)`, async () => {
+
         for (const user of users) {
             const res = await request(app.getHttpServer())
             .post('/users')
@@ -95,7 +96,7 @@ describe('e', () => {
 
             expect(res.status).toEqual(HttpStatus.CONFLICT);
         }
-    })
+    });
 
     it('[POST /users] Should _NOT_ POST user: invalid username', async () => {
         const invalidUsernames = [
@@ -106,12 +107,11 @@ describe('e', () => {
             'Ri Zitas' // contains space
         ]
 
-        const basereq = request(app.getHttpServer())
-            .post('/users')
-            .set('Accept', 'application/json');
-        
         for (const invalidUsername of invalidUsernames) {
-            const res = await basereq.send({
+            const res = await request(app.getHttpServer())
+                .post('/users')
+                .set('Accept', 'application/json')
+                .send({
                 email: 'somevalidemail@gmail.com',
                 name: invalidUsername,
                 password: 'somecoolpassword'
@@ -119,7 +119,7 @@ describe('e', () => {
 
             expect(res.status).toEqual(HttpStatus.BAD_REQUEST);
         }
-    })
+    });
 
     /**
      * Ensure that a given set of usernames is indeed valid.
@@ -134,12 +134,11 @@ describe('e', () => {
             'i_l_O_v_e_u'
         ];
 
-        const basereq = request(app.getHttpServer())
-            .post('/users')
-            .set('Accept', 'application/json');
-        
         for (let i = 0; i != validUsernames.length; ++i) {
-            const res = await basereq.send({
+            const res = await request(app.getHttpServer())
+                .post('/users')
+                .set('Accept', 'application/json')
+                .send({
                 email: `somevalidemail${i}@gmail.com`, // to avoid conflict use a number
                 name: validUsernames[i],
                 password: 'somecoolpassword'
@@ -147,20 +146,24 @@ describe('e', () => {
 
             expect(res.status).toEqual(HttpStatus.CREATED);
         }
-    })
+    });
 
     it('[POST /users] Should _NOT_ POST user: invalid email', async () => {
-        const res = await request(app.getHttpServer())
-        .post('/users')
-        .set('Accept', 'application/json')
-        .send({
-            email: 'testgmail.com',
-            name: 'test78' /* should not start with a digit */,
-            password: 'test78'
-        });
+        const invalidEmails = [
+            'testgmail.com',
+            '.aurelienbrabant@gmail.com',
+            'aurelien brabant@gmail.com'
+        ];
 
-        expect(res.status).toEqual(HttpStatus.BAD_REQUEST);
-    })
+        for (const invalidEmail of invalidEmails) {
+            const res = await request(app.getHttpServer())
+                .post('/users')
+                .set('Accept', 'application/json')
+                .send(invalidEmail);
+
+            expect(res.status).toEqual(HttpStatus.BAD_REQUEST);
+        }
+    });
 
     /**
      * Ensure that the passed usernames are indeed NOT valid.
@@ -185,5 +188,5 @@ describe('e', () => {
             const res = await basereq.send(reqBody);
             expect(res.status).toEqual(HttpStatus.BAD_REQUEST);
         }
-    })
-})
+    });
+});
