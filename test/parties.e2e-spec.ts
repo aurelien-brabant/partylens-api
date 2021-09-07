@@ -13,16 +13,15 @@ import {PartiesService} from '../src/parties/service/parties.service';
 import {SeedersModule} from '../src/seeders/seeders.module';
 import {SeedersService} from '../src/seeders/seeders.service';
 
-describe('e', () => {
-    const USER_NB = 10;
+describe('Parties', () => {
+    const BASE_USER_NB = 10;
+    const BASE_PARTY_NB = 10;
 
     let app: INestApplication;
     let usersService: UsersService;
     let partiesService: PartiesService;
 
-    let users = null; 
-
-    let jwtToken: string = null;
+    let users = null, parties = null; 
 
     beforeAll(async () => {
         const loggedUserDto: CreateUserDto = {
@@ -59,10 +58,6 @@ describe('e', () => {
             transform: true,
         }))
 
-        const basereq = request(app.getHttpServer())
-        .post('/auth/login')
-        .set('Accept', 'application/json');
-
         await app.init();
 
         usersService = app.get(UsersService);
@@ -70,22 +65,26 @@ describe('e', () => {
         
         const seeder = app.get(SeedersService);
 
-        users = seeder.generateUserDtos(USER_NB);
+        users = seeder.generateUserDtos(BASE_USER_NB);
 
         for (const user of users) {
             await usersService.create(user);
 
-            const res = await basereq.send(user);
+            const res = await request(app.getHttpServer())
+                .post('/auth/login')
+                .set('Accept', 'application/json')
+                .send(user);
+
             expect(res.status).toEqual(HttpStatus.CREATED);
             expect(res.body.access_token).toBeDefined();
             expect(isJWT(res.body.access_token)).toBeTruthy();
             user.jwtToken = res.body.access_token;
         }
-    })
+    });
 
     afterAll(async () => {
         await app.close();
-    })
+    });
 
     it('[GET /parties] SHOULD return an array', async () => {
         const res = await request(app.getHttpServer())
@@ -94,7 +93,7 @@ describe('e', () => {
 
         expect(res.status).toEqual(HttpStatus.OK);
         expect(Array.isArray(res.body)).toBe(true);
-    })
+    });
     
     // missing Bearer token
     it('[GET /parties] SHOULD refuse authentication', async () => {

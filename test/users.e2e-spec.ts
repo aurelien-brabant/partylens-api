@@ -11,7 +11,7 @@ import {SeedersService} from "../src/seeders/seeders.service";
 import {UsersModule} from "../src/users/users.module";
 import {SeedersModule} from "../src/seeders/seeders.module";
 
-describe('e', () => {
+describe('Users', () => {
     const BASE_USER_NB = 10;
     const POST_USER_NB = 50;
 

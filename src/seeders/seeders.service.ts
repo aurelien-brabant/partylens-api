@@ -95,6 +95,22 @@ export class SeedersService {
 
     }
 
+    generatePartyDtos(n: number): CreatePartyDto[]
+    {
+        const dtos: CreatePartyDto[] = [];
+
+        for (let i = 0; i != n; ++i) {
+            dtos.push({
+                name: faker.random.words(3),
+                description: faker.lorem.slug(20),
+                startDate: faker.date.soon().toJSON(),
+                latlong: `${faker.address.latitude()},${faker.address.longitude()}`
+            });
+        }
+
+        return dtos;
+    }
+
     generateUserDtos(n: number): CreateUserDto[]
     {
         const dtos: CreateUserDto[] = [];
