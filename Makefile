@@ -20,7 +20,7 @@ status:
 
 frontend:
 	git pull origin HEAD
-	$(COMPOSE) up -d api-frontend
+	$(COMPOSE) up --build -d api-frontend
 
 test:
 	docker exec -it api-dev yarn test:e2e
