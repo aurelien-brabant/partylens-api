@@ -1,7 +1,7 @@
 import {IsNumber, IsOptional, Matches} from "class-validator";
 
 export class CreatePartymemberDto {
-  @Matches(/$[a-z][a-z0-9_]{1,13}[a-z0-9]#[0-9]{4}^/i)
+  @Matches(/^[a-z][a-z0-9_]{1,13}[a-z0-9]#[0-9]{4}$/i)
   nametag: string;
 
   /**

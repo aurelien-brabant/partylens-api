@@ -12,7 +12,7 @@ export class CreateInviteGroupDto {
    */
   
   @IsArray()
-  @Matches(/$[a-z][a-z0-9_]{1,13}[a-z0-9]#[0-9]{4}^/i, {
+  @Matches(/^[a-z][a-z0-9_]{1,13}[a-z0-9]#[0-9]{4}$/i, {
     each: true
   })
 
